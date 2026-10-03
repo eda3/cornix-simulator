@@ -168,20 +168,38 @@
 
 計測ページの「全画面＋Keyboard Lock」を押してから試す。
 
-- 測った日:
-- 許可の確認が出たか:
-- Keyboard Lock が掛かったと、ページに出たか:
+- 測った日: 2026-10-03（keyhac は止めた状態。えだの申告）
+- 測ったブラウザ: Edge 154.0.4258.53（測ったのが Edge であることは、えだの申告。版の出どころ: `(Get-Item "${env:ProgramFiles(x86)}\Microsoft\Edge\Application\msedge.exe").VersionInfo.ProductVersion`。動いていた msedge のプロセスの ProductVersion も同じ。2026-10-03 19:37 に読んだ）。Brave 154.1.96.61 でも試した（えだの申告）
+- 許可の確認が出たか: Edge＝出なかった。Brave＝出なかった（ブラウザの全画面の帯「全画面を終了するには Esc を押します」だけ）
+- Keyboard Lock が掛かったと、ページに出たか: Edge＝「Keyboard Lock が掛かりました」。Brave＝「Keyboard Lock は掛けていません」のまま（ボタンの文は「全画面をやめる」に変わった）
+- 全画面の抜け方: 記録の時点では、まだ全画面のまま（別のディスプレイの窓で作業中）
+
+下の表は、Edge で、全画面＋Keyboard Lock のとき。ページにフォーカスがある状態で押した（えだの申告）。
 
 | 操作 | ブラウザや Windows が動いたか（動いたときは、その内容） | ページに届いた code |
 |---|---|---|
-| Win を単独で押して、離す | | |
-| Win を押したまま D | | |
-| Alt を押したまま Tab | | |
-| Ctrl+W | | |
-| Ctrl+T | | |
-| Ctrl+N | | |
-| Esc を短く押す | | |
-| Esc を2秒押す | | |
+| Win を単独で押して、離す | 動かなかった（スタートメニューは開かなかった） | MetaLeft（keydown・keyup とも届いた） |
+| Win を押したまま D | 動かなかった（デスクトップに切り替わらなかった） | MetaLeft・KeyD |
+| Alt を押したまま Tab | 動かなかった（窓は切り替わらなかった） | AltLeft・Tab |
+| Ctrl+W | 動かなかった（タブは閉じなかった。表が残った） | ControlLeft・KeyW |
+| Ctrl+T | 動かなかった（新しいタブは開かなかった） | ControlLeft・KeyT |
+| Ctrl+N | 動かなかった（新しい窓は開かなかった） | ControlLeft・KeyN |
+| Esc を短く押す | 全画面は解けなかった | Escape |
+| Esc を2秒押す | 全画面は解けなかった（2秒では。Edge は Esc の長押しで抜けられる、はえだの知識） | Escape |
+
+出どころ（Edge。計測ページが出した表）:
+
+| 手元の刻印 | code | key | location | keydown | keyup | repeat | メモ |
+|---|---|---|---|---|---|---|---|
+| | MetaLeft | Meta | 1 | 2 | 2 | 0 | |
+| | KeyD | d | 0 | 1 | 1 | 0 | |
+| | AltLeft | Alt | 1 | 1 | 1 | 3 | |
+| | Tab | Tab | 0 | 1 | 1 | 0 | |
+| | ControlLeft | Control | 1 | 3 | 3 | 0 | |
+| | KeyW | w | 0 | 1 | 1 | 0 | |
+| | KeyT | t | 0 | 1 | 1 | 0 | |
+| | KeyN | n | 0 | 1 | 1 | 0 | |
+| | Escape | Escape | 0 | 3 | 3 | 0 | |
 
 ## ④ JIS の文字（1周目。design 6節の M-4）
 
