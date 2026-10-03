@@ -103,12 +103,12 @@ impl Page {
         self.document.fullscreen_element().is_some()
     }
 
-    /// `navigator.keyboard`。Keyboard Lock の無いブラウザでは `None`。
+    /// `navigator.keyboard`。Keyboard Lock の無いブラウザ（値が undefined か null）では `None`。
     ///
     /// web-sys に Keyboard Lock の型が無いので、`js_sys::Reflect` で読む。
     fn keyboard(&self) -> Result<Option<JsValue>, JsValue> {
         let keyboard = Reflect::get(&self.window.navigator(), &JsValue::from_str("keyboard"))?;
-        Ok((!keyboard.is_undefined()).then_some(keyboard))
+        Ok((!keyboard.is_undefined() && !keyboard.is_null()).then_some(keyboard))
     }
 
     /// 全画面でないときの表示にする。

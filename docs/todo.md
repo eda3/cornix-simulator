@@ -21,6 +21,7 @@
   - 完了条件: Workflow のコマンド（wasm32 向けの clippy と、wasm-pack のビルドを含む）が全部通り、`static/pkg/` に `cornix_web.js` と `cornix_web_bg.wasm` が出る。ブラウザで開いて確かめるのは、次の【えだ】
 - [x] 計測ページの Markdown を、`docs/measurements.md` ①の枠と同じ8列にする（B-52）
 - [x] 文書を「keyhac を止めて使う」の決定に合わせる
+- [x] 計測ページで、navigator.keyboard が null のブラウザ（Brave）でも B-50 の表示が出て、全画面を抜けたときにボタンの文が戻るようにする
 - [ ] 【えだ】計測ページで、手元のキーの届き方を測る（①の実測。`docs/measurements.md` の①〜④）
   - メモ: 手順。
     1. `wasm-pack build cornix_web --target web --out-dir ../static/pkg --no-typescript`
