@@ -8,9 +8,11 @@ use std::collections::{VecDeque, vec_deque};
 /// 直近のイベントとして覚えておく件数（B-48）。
 pub const RECENT_LIMIT: usize = 20;
 
-/// Markdown の表の、見出しの2行（B-52）。列は、まとめの表（B-47）と同じ。
-const MARKDOWN_HEAD: &str =
-    "| code | key | location | keydown | keyup | repeat |\n|---|---|---|---|---|---|\n";
+/// Markdown の表の、見出しの2行（B-52）。`docs/measurements.md` の①の枠と同じ文字列。
+const MARKDOWN_HEAD: &str = concat!(
+    "| 手元の刻印 | code | key | location | keydown | keyup | repeat | メモ |\n",
+    "|---|---|---|---|---|---|---|---|\n",
+);
 
 /// キーイベントの種類。
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -180,17 +182,19 @@ impl KeyLog {
         self.recent.iter()
     }
 
-    /// まとめの表と同じ中身を、Markdown の表にした文字列（B-52）。
+    /// まとめの表の中身を、Markdown の表にした文字列（B-52）。
     ///
+    /// 列は、`docs/measurements.md` の①の枠と同じ8つ。前の「手元の刻印」と、後ろの「メモ」は、
+    /// 空で出す（貼ったあとに、手で書く列）。間の6列は、[`SummaryRow::cells`] と同じ。
     /// 値の中の `|` は、表の区切りと重ならないように `\|` と書く。
     #[must_use]
     pub fn to_markdown(&self) -> String {
         let mut markdown = MARKDOWN_HEAD.to_owned();
         for row in &self.rows {
             let cells = row.cells().map(|cell| cell.replace('|', "\\|"));
-            markdown.push_str("| ");
+            markdown.push_str("| | ");
             markdown.push_str(&cells.join(" | "));
-            markdown.push_str(" |\n");
+            markdown.push_str(" | |\n");
         }
         markdown
     }
@@ -209,9 +213,11 @@ fn shown(value: &str) -> &str {
 mod tests {
     use super::{EventKind, KeyEvent, KeyLog, SummaryRow};
 
-    /// 見出しだけ（行が無い）の Markdown。
-    const EMPTY_MARKDOWN: &str =
-        "| code | key | location | keydown | keyup | repeat |\n|---|---|---|---|---|---|\n";
+    /// 見出しだけ（行が無い）の Markdown。`docs/measurements.md` の①の枠の2行から、手で写した物。
+    const EMPTY_MARKDOWN: &str = concat!(
+        "| 手元の刻印 | code | key | location | keydown | keyup | repeat | メモ |\n",
+        "|---|---|---|---|---|---|---|---|\n",
+    );
 
     fn event(kind: EventKind, code: &str, key: &str, location: u32, repeat: bool) -> KeyEvent {
         KeyEvent {
@@ -598,14 +604,14 @@ mod tests {
 
         assert_eq!(
             log.to_markdown(),
-            "| code | key | location | keydown | keyup | repeat |\n\
-             |---|---|---|---|---|---|\n\
-             | KeyQ | q | 0 | 1 | 1 | 1 |\n\
-             | Backquote | Zenkaku Hankaku | 0 | 1 | 1 | 0 |\n\
-             | （空） | Shift | 2 | 1 | 0 | 0 |\n\
-             | Space | （空白） | 0 | 1 | 1 | 0 |\n\
-             | IntlYen | \\ \\| | 0 | 2 | 0 | 0 |\n\
-             | ShiftLeft | Shift | 1 | 1 | 0 | 0 |\n"
+            "| 手元の刻印 | code | key | location | keydown | keyup | repeat | メモ |\n\
+             |---|---|---|---|---|---|---|---|\n\
+             | | KeyQ | q | 0 | 1 | 1 | 1 | |\n\
+             | | Backquote | Zenkaku Hankaku | 0 | 1 | 1 | 0 | |\n\
+             | | （空） | Shift | 2 | 1 | 0 | 0 | |\n\
+             | | Space | （空白） | 0 | 1 | 1 | 0 | |\n\
+             | | IntlYen | \\ \\| | 0 | 2 | 0 | 0 | |\n\
+             | | ShiftLeft | Shift | 1 | 1 | 0 | 0 | |\n"
         );
     }
 }
