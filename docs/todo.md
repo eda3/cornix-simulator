@@ -20,14 +20,14 @@
   - 足してよい依存: wasm-bindgen・web-sys・js-sys（`cornix_web`。target が wasm32 のときだけ）
   - 完了条件: Workflow のコマンド（wasm32 向けの clippy と、wasm-pack のビルドを含む）が全部通り、`static/pkg/` に `cornix_web.js` と `cornix_web_bg.wasm` が出る。ブラウザで開いて確かめるのは、次の【えだ】
 - [x] 計測ページの Markdown を、`docs/measurements.md` ①の枠と同じ8列にする（B-52）
+- [x] 文書を「keyhac を止めて使う」の決定に合わせる
 - [ ] 【えだ】計測ページで、手元のキーの届き方を測る（①の実測。`docs/measurements.md` の①〜④）
   - メモ: 手順。
     1. `wasm-pack build cornix_web --target web --out-dir ../static/pkg --no-typescript`
     2. `python -m http.server 8000 --directory static` を動かしたまま、Chrome で `http://localhost:8000/keytest.html` を開く
-    3. keyhac を動かしたまま、`docs/measurements.md` の①の「押すキー」を、上から順に、1つずつ押して離す。ページの下に出る Markdown の表を、①の「keyhac を動かしたまま」に貼る
-    4. 「記録を消す」を押し、keyhac を止めて、3 と同じことをする。「keyhac を止めたとき」に貼る
-    5. ②（止められるか）・③（全画面）・④（JIS の文字）を、表のとおりに試して、書く。ふだん使う状態（keyhac を動かしたまま）で測り、止めたときと違う所があれば、メモに書く。Ctrl+W・Ctrl+T・Ctrl+N は、③の全画面のときだけ押す（ふつうの窓では、タブが閉じたり開いたりする）
-    6. ブラウザの版・IME・キーボードの型番も書く
+    3. keyhac を止めて、`docs/measurements.md` の①の「押すキー」を、上から順に、1つずつ押して離す。ページの下に出る Markdown の表を、①の「keyhac を止めたとき」に貼る
+    4. ②（止められるか）・③（全画面）・④（JIS の文字）を、表のとおりに試して、書く。keyhac を止めて測る。Ctrl+W・Ctrl+T・Ctrl+N は、③の全画面のときだけ押す（ふつうの窓では、タブが閉じたり開いたりする）
+    5. ブラウザの版・IME・キーボードの型番も書く
 - [ ] 【えだ】下段の対応表と、JIS の文字の表を決める（design 3.2節・3.4節。design 6節の M-1〜M-7）
   - メモ: Claude Code に「`docs/measurements.md` の①〜④を読んで、design 3.4節の決め方で、下段の対応表の案を出して」と頼む。えだが選んだら、Claude Code が次を行う（文書だけを変える。コミットは1つ）。(a) design 3.4節に、下段の表を足す。上の3段で、届き方が怪しかったキーは外す (b) design 3.2節の JIS の列を、④の実測に合わせる (c) B-43 の注意の文を、②③の実測に合わせる (d) design 6節の M-1〜M-7 を、分かったことで書き直す (e) 見本（design 3.5節）の MO(1)・MO(2)・Space・Enter・Bksp の位置に、手元のキーが当たらないときは、見本と対応表のどちらを直すかを、えだに聞く
 - [ ] 【えだ】PR の差分を読んで、合流を頼む

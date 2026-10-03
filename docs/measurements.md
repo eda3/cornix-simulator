@@ -11,7 +11,7 @@
 - ブラウザと版:
 - IME（Microsoft IME・Google 日本語入力 など）:
 - キーボード（型番。Windows 用か Mac 用か）:
-- keyhac の版と、無変換・変換に割り当てている動き:
+- keyhac: 止めて測る（えだの決定・2026-10-03）
 
 押すキー（1つずつ押して、離す。計測ページの下に出る Markdown の表を、そのまま貼ってよい）:
 
@@ -22,12 +22,6 @@
 5. Enter・Backspace・Space
 6. 数字の段の右の3つ: -・^・¥
 
-### keyhac を動かしたまま
-
-| 手元の刻印 | code | key | location | keydown | keyup | repeat | メモ |
-|---|---|---|---|---|---|---|---|
-| | | | | | | | |
-
 ### keyhac を止めたとき
 
 | 手元の刻印 | code | key | location | keydown | keyup | repeat | メモ |
@@ -36,7 +30,6 @@
 
 ### 見えたこと
 
-- 2つを比べて、届き方が違ったキー:
 - keyup が来なかったキー（keydown と keyup の回数が合わないキー）:
 - code が空で届いたキー:
 - まったく届かなかったキー:
@@ -44,7 +37,7 @@
 
 ## ② 止められるか（1周目。design 6節の M-5）
 
-計測ページの「preventDefault する」を入れたまま、ふつうの窓で試す。ふだん使う状態（keyhac を動かしたまま）で測る。Ctrl+W・Ctrl+T・Ctrl+N は、ここでは押さない。
+計測ページの「preventDefault する」を入れたまま、ふつうの窓で試す。keyhac を止めて測る。Ctrl+W・Ctrl+T・Ctrl+N は、ここでは押さない。
 
 - 測った日:
 
@@ -65,8 +58,6 @@
 | Win を単独で押して、離す | | |
 | アプリケーションキー | | |
 
-- keyhac を止めたときと違った所:
-
 ## ③ 全画面＋Keyboard Lock（1周目。design 6節の M-6）
 
 計測ページの「全画面＋Keyboard Lock」を押してから試す。
@@ -85,8 +76,6 @@
 | Ctrl+N | | |
 | Esc を短く押す | | |
 | Esc を2秒押す | | |
-
-- keyhac を止めたときと違った所:
 
 ## ④ JIS の文字（1周目。design 6節の M-4）
 
