@@ -466,6 +466,7 @@ HID の番号ごとの文字。左が素、右が Shift。JIS の側は、1周�
 
 **Q-13（k）: 周ごとにブランチと PR を使いますか。main に直接積みますか。**
 - 事実: edaberu は、周ごとのブランチと PR [A]。マインスイーパー2号機は main に直接 [B・チャット側の報告]。このリポジトリの CLAUDE.md は「main への push と合流は、えだが差分を読んでから行う」。Q-12 が a なら、main に入った時点で公開される。
+  - → 2026-10-03 17:11 の commit dc91588 で、commit と push は Claude Code の担当に変更。今の文は CLAUDE.md の Workflow が正
 - 選択肢: a. 周ごとにブランチと PR（Claude Code がブランチへ push して PR を作り、えだが読んで合流する）／ b. main に直接積む（えだが push する）
 - 推奨: a（Q-12 の a と組むと、周の途中の物は公開されず、えだが合流したときだけ公開されるため。CLAUDE.md の Workflow に、edaberu と同じ1行を足すことになるので、足す前に報告する）
 
