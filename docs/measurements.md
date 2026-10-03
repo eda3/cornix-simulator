@@ -126,24 +126,43 @@
 
 計測ページの「preventDefault する」を入れたまま、ふつうの窓で試す。keyhac を止めて測る。Ctrl+W・Ctrl+T・Ctrl+N は、ここでは押さない。
 
-- 測った日:
+- 測った日: 2026-10-03（Brave。keyhac は止めた状態。「preventDefault する」は入り。えだの申告）
 
 | 操作 | ブラウザや Windows が動いたか（動いたときは、その内容） | ページに届いた code |
 |---|---|---|
-| Tab | | |
-| Space | | |
-| ↑・↓ | | |
-| Alt を単独で押して、離す | | |
-| Alt を押したまま D | | |
-| Alt を押したまま F | | |
-| F5 | | |
-| F10 | | |
-| F12 | | |
-| Ctrl+L | | |
-| Ctrl+F | | |
-| Ctrl+P | | |
-| Win を単独で押して、離す | | |
+| Tab | 動かなかった | Tab |
+| Space | 動かなかった | Space |
+| ↑・↓ | 動かなかった | ArrowUp・ArrowDown |
+| Alt を単独で押して、離す | 動かなかった | AltLeft |
+| Alt を押したまま D | 動かなかった | AltLeft・KeyD |
+| Alt を押したまま F | 動かなかった | AltLeft・KeyF |
+| F5 | 動かなかった | F5 |
+| F10 | 動かなかった | F10 |
+| F12 | 動かなかった | F12 |
+| Ctrl+L | 動かなかった | ControlLeft・KeyL |
+| Ctrl+F | 動かなかった | ControlLeft・KeyF |
+| Ctrl+P | 動かなかった | ControlLeft・KeyP |
+| Win を単独で押して、離す | 動いた（スタートメニューが開いた） | MetaLeft（keydown のみ。keyup は届かず） |
 | アプリケーションキー | | |
+
+出どころ（計測ページが出した表）:
+
+| 手元の刻印 | code | key | location | keydown | keyup | repeat | メモ |
+|---|---|---|---|---|---|---|---|
+| | Tab | Tab | 0 | 1 | 1 | 0 | |
+| | Space | （空白） | 0 | 1 | 1 | 0 | |
+| | ArrowUp | ArrowUp | 0 | 1 | 1 | 0 | |
+| | ArrowDown | ArrowDown | 0 | 1 | 1 | 0 | |
+| | AltLeft | Alt | 1 | 3 | 3 | 23 | |
+| | KeyD | d | 0 | 1 | 1 | 0 | |
+| | KeyF | f | 0 | 2 | 2 | 0 | |
+| | F5 | F5 | 0 | 1 | 1 | 0 | |
+| | F10 | F10 | 0 | 1 | 1 | 0 | |
+| | F12 | F12 | 0 | 1 | 1 | 0 | |
+| | ControlLeft | Control | 1 | 4 | 3 | 1 | |
+| | KeyL | l | 0 | 1 | 1 | 0 | |
+| | KeyP | p | 0 | 1 | 1 | 0 | |
+| | MetaLeft | Meta | 1 | 1 | 0 | 0 | |
 
 ## ③ 全画面＋Keyboard Lock（1周目。design 6節の M-6）
 
