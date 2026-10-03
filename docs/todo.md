@@ -15,7 +15,7 @@
 
 ブランチ: `stage1-keytest`
 
-- [ ] workspace の骨組みと、計測ページ（keytest）を作り、①の自動の部分を満たす（B-46〜B-52）
+- [x] workspace の骨組みと、計測ページ（keytest）を作り、①の自動の部分を満たす（B-46〜B-52）
   - メモ: ルートの `Cargo.toml` は `[workspace]` だけ（`members = ["cornix_logic", "cornix_web"]`、`resolver = "3"`）。edition は 2024。`cornix_logic` は lib で、まだ中身は空でよい（`//!` の説明だけ。serde_json は、まだ入れない）。`cornix_web` は `crate-type = ["cdylib", "rlib"]` で、`cornix_logic` に依存する。wasm-bindgen・web-sys・js-sys は `[target.'cfg(target_arch = "wasm32")'.dependencies]` に入れる（research 5.1節の、試した形）。まとめの表を作る部分（イベントの並び → 行の並びと、直近の20件）は、web-sys を使わないモジュールに分けて、`cargo test` で確かめる。DOM とイベントの配線は `#[cfg(target_arch = "wasm32")]` のモジュールに置き、`#[wasm_bindgen] pub fn run_keytest()` を出す。`static/keytest.html` は手書きで、`./pkg/cornix_web.js` を読み込んで `run_keytest()` を呼ぶ（`index.html` は、まだ作らない）。全画面と Keyboard Lock の呼び方は、web-sys に型が無ければ `js_sys::Reflect` で呼ぶ。通った方法を、design 6節の M-8 に書き戻す。`.gitignore` に `/static/pkg/` を足す
   - 足してよい依存: wasm-bindgen・web-sys・js-sys（`cornix_web`。target が wasm32 のときだけ）
   - 完了条件: Workflow のコマンド（wasm32 向けの clippy と、wasm-pack のビルドを含む）が全部通り、`static/pkg/` に `cornix_web.js` と `cornix_web_bg.wasm` が出る。ブラウザで開いて確かめるのは、次の【えだ】

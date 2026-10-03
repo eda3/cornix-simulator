@@ -1,0 +1,3 @@
+[workspace]
+members = ["cornix_logic", "cornix_web"]
+resolver = "3"
