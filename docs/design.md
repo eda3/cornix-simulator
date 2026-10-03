@@ -321,14 +321,14 @@ KC_JYEN          なし   なし       \       |
 
 - 形は、公式の .vil と同じ（10レイヤー × 8行 × 7列。文字列 500個と、-1 が 60個。-1 の位置も同じ6か所）。uid は 9223372036854775808（符号つき64ビットの上限＋1）。Vial で実機に読み込むための物ではない（uid が実機と合わない）。
 - 考え方: レイヤー0の上の3段は、手元の日本語配列のキーボードの「同じ位置のキー」と同じ文字が出るようにした（右端の列は、上から @・:・ろ）。数字の段（半角/全角・1〜0・-）は、レイヤー1の上の段。残りの記号（^・¥・[・]）は、レイヤー1の右手。レイヤー2は、ファンクションキー・矢印（H J K L の位置）・Home／End など。
-- レイヤーの切り替えは、MO(1) が (7,3)、MO(2) が (3,3)。どちらも、手元の Alt が当たる見込みの位置（無変換・変換は、keyhac が使っていて、届くか分からないため）。当たらないと分かったら、対応表を決めるときに、見本か対応表のどちらかを直す（6節の M-7）。
+- レイヤーの切り替えは、MO(1) が (3,3)、MO(2) が (7,3)。公式の初期キーマップと同じ位置（えだの決定・2026-10-03）。どちらも、手元の Alt が当たる見込みの位置。当たらないと分かったら、対応表を決めるときに、見本か対応表のどちらかを直す（6節の M-7）。
 - テストの場面のために入れた物:
-  - (7,3) は、レイヤー1では KC_NO（MO(1) を押している間、その位置が KC_NO になる。B-27）。(3,3) も、レイヤー2では KC_NO。
+  - (3,3) は、レイヤー1では KC_NO（MO(1) を押している間、その位置が KC_NO になる。B-27）。(7,3) も、レイヤー2では KC_NO。
   - 左 Shift の位置 (2,0) は、レイヤー1では KC_TRNS（Shift が効く）。右 Shift の位置 (7,0) は、レイヤー1では KC_NO（効かない）。
   - レイヤー2の (4,1) は KC_NO（MO を2つ押したとき、レイヤー1の KC_0 を隠す）。レイヤー2の (0,0) は KC_TRNS（MO(2) だけのときはレイヤー0の Tab、MO を2つ押したときはレイヤー1の KC_GRAVE になる）。
   - レイヤー2の (6,1) は KC_UNDS（US では _、JIS では =）。(6,0) は LSFT(KC_RO)（JIS では _、US では文字なし）。
   - レイヤー3〜9は、全部 KC_TRNS。
-- 公式の初期キーマップと同じキーコードになる位置は、レイヤー0で 50 のうち 34（英字26と、`,`・`.`・Tab・左 Shift・Ctrl・GUI・Alt・Space）、レイヤー1で数字の10。どれも、ふつうのキーボードの並びをそのまま使った所 [A・2026-10-03 に比べた]。
+- 公式の初期キーマップと同じキーコードになる位置（KC_NO どうしも数える）は、50 のうち、レイヤー0で 36（英字26と、`,`・`.`・Tab・左 Shift・Ctrl・GUI・Alt・Space・MO(1)・MO(2)）、レイヤー1で 12（数字の10と、KC_NO の2つ: (3,3) と (7,0)）、レイヤー2で 11（どれも KC_NO）、レイヤー3〜9で 0 [A・2026-10-03 に比べた]。英字・数字・`,`・`.`・Tab・左 Shift・Ctrl・GUI・Alt・Space は、ふつうのキーボードの並びをそのまま使った所。MO(1) と MO(2) は、公式と同じ位置にした（えだの決定）。
 
 ```json
 {
@@ -339,31 +339,31 @@ KC_JYEN          なし   なし       \       |
       ["KC_TAB", "KC_Q", "KC_W", "KC_E", "KC_R", "KC_T", -1],
       ["KC_ESCAPE", "KC_A", "KC_S", "KC_D", "KC_F", "KC_G", -1],
       ["KC_LSHIFT", "KC_Z", "KC_X", "KC_C", "KC_V", "KC_B", "KC_NO"],
-      ["KC_LCTRL", "KC_LGUI", "KC_LALT", "MO(2)", "KC_MHEN", "KC_SPACE", -1],
+      ["KC_LCTRL", "KC_LGUI", "KC_LALT", "MO(1)", "KC_MHEN", "KC_SPACE", -1],
       ["KC_LBRACKET", "KC_P", "KC_O", "KC_I", "KC_U", "KC_Y", -1],
       ["KC_QUOTE", "KC_SCOLON", "KC_L", "KC_K", "KC_J", "KC_H", "KC_NO"],
       ["KC_RO", "KC_SLASH", "KC_DOT", "KC_COMMA", "KC_M", "KC_N", -1],
-      ["KC_RSHIFT", "KC_DELETE", "KC_HENK", "MO(1)", "KC_BSPACE", "KC_ENTER", -1]
+      ["KC_RSHIFT", "KC_DELETE", "KC_HENK", "MO(2)", "KC_BSPACE", "KC_ENTER", -1]
     ],
     [
       ["KC_GRAVE", "KC_1", "KC_2", "KC_3", "KC_4", "KC_5", -1],
       ["KC_TRNS", "KC_TRNS", "KC_TRNS", "KC_TRNS", "KC_TRNS", "KC_TRNS", -1],
       ["KC_TRNS", "KC_TRNS", "KC_TRNS", "KC_TRNS", "KC_TRNS", "KC_TRNS", "KC_TRNS"],
-      ["KC_TRNS", "KC_TRNS", "KC_TRNS", "KC_TRNS", "KC_TRNS", "KC_TRNS", -1],
+      ["KC_TRNS", "KC_TRNS", "KC_TRNS", "KC_NO", "KC_TRNS", "KC_TRNS", -1],
       ["KC_MINUS", "KC_0", "KC_9", "KC_8", "KC_7", "KC_6", -1],
       ["KC_RBRACKET", "KC_JYEN", "KC_EQUAL", "KC_TRNS", "KC_TRNS", "KC_TRNS", "KC_TRNS"],
       ["KC_BSLASH", "KC_TRNS", "KC_TRNS", "KC_TRNS", "KC_TRNS", "KC_TRNS", -1],
-      ["KC_NO", "KC_TRNS", "KC_TRNS", "KC_NO", "KC_TRNS", "KC_TRNS", -1]
+      ["KC_NO", "KC_TRNS", "KC_TRNS", "KC_TRNS", "KC_TRNS", "KC_TRNS", -1]
     ],
     [
       ["KC_TRNS", "KC_F1", "KC_F2", "KC_F3", "KC_F4", "KC_F5", -1],
       ["KC_TRNS", "KC_F6", "KC_F7", "KC_F8", "KC_F9", "KC_F10", -1],
       ["KC_TRNS", "KC_F11", "KC_F12", "KC_NO", "KC_NO", "KC_NO", "KC_TRNS"],
-      ["KC_TRNS", "KC_TRNS", "KC_TRNS", "KC_NO", "KC_TRNS", "KC_TRNS", -1],
+      ["KC_TRNS", "KC_TRNS", "KC_TRNS", "KC_TRNS", "KC_TRNS", "KC_TRNS", -1],
       ["KC_NO", "KC_NO", "KC_END", "KC_PGUP", "KC_PGDOWN", "KC_HOME", -1],
       ["KC_TRNS", "KC_NO", "KC_RIGHT", "KC_UP", "KC_DOWN", "KC_LEFT", "KC_TRNS"],
       ["LSFT(KC_RO)", "KC_UNDS", "KC_NO", "KC_NO", "KC_NO", "KC_NO", -1],
-      ["KC_TRNS", "KC_TRNS", "KC_TRNS", "KC_TRNS", "KC_TRNS", "KC_TRNS", -1]
+      ["KC_TRNS", "KC_TRNS", "KC_TRNS", "KC_NO", "KC_TRNS", "KC_TRNS", -1]
     ],
     [
       ["KC_TRNS", "KC_TRNS", "KC_TRNS", "KC_TRNS", "KC_TRNS", "KC_TRNS", -1],
@@ -468,14 +468,14 @@ KC_JYEN          なし   なし       \       |
 | 0・1 | (1,1) | KC_A | レイヤー1は KC_TRNS → レイヤー0 |
 | 0・1 | (2,0) | KC_LSHIFT | レイヤー1は KC_TRNS → レイヤー0 |
 | 0・1 | (7,0) | KC_NO | レイヤー1の KC_NO で止まる（レイヤー0の KC_RSHIFT は見ない） |
-| 0・1 | (7,3) | KC_NO | MO(1) の位置。レイヤー1では KC_NO |
-| 0・1 | (3,3) | MO(2) | レイヤー1は KC_TRNS → レイヤー0 |
+| 0・1 | (3,3) | KC_NO | MO(1) の位置。レイヤー1では KC_NO |
+| 0・1 | (7,3) | MO(2) | レイヤー1は KC_TRNS → レイヤー0 |
 | 0・1 | (4,0) | KC_MINUS | レイヤー1 |
 | 0・2 | (0,0) | KC_TAB | レイヤー2は KC_TRNS。レイヤー1は有効でないので飛ばす → レイヤー0 |
 | 0・2 | (7,0) | KC_RSHIFT | レイヤー2は KC_TRNS。レイヤー1（KC_NO）は有効でないので飛ばす |
 | 0・2 | (5,0) | KC_QUOTE | レイヤー2は KC_TRNS → レイヤー0 |
 | 0・2 | (4,1) | KC_NO | レイヤー2の KC_NO |
-| 0・2 | (7,3) | MO(1) | レイヤー2は KC_TRNS → レイヤー0 |
+| 0・2 | (3,3) | MO(1) | レイヤー2は KC_TRNS → レイヤー0 |
 | 0・1・2 | (0,1) | KC_F1 | レイヤー2 |
 | 0・1・2 | (0,0) | KC_GRAVE | レイヤー2は KC_TRNS → レイヤー1 |
 | 0・1・2 | (1,0) | KC_ESCAPE | レイヤー2も1も KC_TRNS → レイヤー0 |
@@ -524,10 +524,10 @@ KC_JYEN          なし   なし       \       |
 押し方                                         直前のキー         欄に足す
 (0,1)                                          Q → q              q
 (2,0) を押したまま (0,1)                       Shift+Q → Q        Q
-(7,3) を押したまま (0,1)                       1 → 1              1
-(2,0) と (7,3) を押したまま (0,1)              Shift+1 → !        !
-(2,0) と (7,3) を押したまま (4,1)              Shift+0            （なし）
-(7,3) を押したまま (0,0)                       半角/全角          （なし）
+(3,3) を押したまま (0,1)                       1 → 1              1
+(2,0) と (3,3) を押したまま (0,1)              Shift+1 → !        !
+(2,0) と (3,3) を押したまま (4,1)              Shift+0            （なし）
+(3,3) を押したまま (0,0)                       半角/全角          （なし）
 (3,0) を押したまま (2,3)                       Ctrl+C             （なし）
 (3,0) と (2,0) を押したまま (2,3)              Ctrl+Shift+C       （なし）
 (3,0) を押したまま (7,5)                       Ctrl+Enter         （なし）
@@ -535,13 +535,13 @@ KC_JYEN          なし   なし       \       |
 (2,0) を押したまま (0,0)                       Shift+Tab          タブ文字
 (2,0)                                          Shift              （なし）
 (3,0) を押したまま (2,0)                       Ctrl+Shift         （なし）
-(7,3)                                          MO(1)              （なし）
-(7,3) を押したまま (7,0)                       （割り当てなし）   （なし）
-(3,3) を押したまま (6,1)                       Shift+- → =        =
-(3,3) を押したまま (6,0)                       Shift+\ → _        _
+(3,3)                                          MO(1)              （なし）
+(3,3) を押したまま (7,0)                       （割り当てなし）   （なし）
+(7,3) を押したまま (6,1)                       Shift+- → =        =
+(7,3) を押したまま (6,0)                       Shift+\ → _        _
 ```
 
-- 同じ見本で、配列を US にしたとき: (3,3) を押したまま (6,1) は `Shift+- → _`（欄に _）。(3,3) を押したまま (6,0) は `Shift+Ro`（欄は変えない）。(7,3) を押したまま (0,0) は `` ` → ` ``（欄に `` ` ``）。
+- 同じ見本で、配列を US にしたとき: (7,3) を押したまま (6,1) は `Shift+- → _`（欄に _）。(7,3) を押したまま (6,0) は `Shift+Ro`（欄は変えない）。(3,3) を押したまま (0,0) は `` ` → ` ``（欄に `` ` ``）。
 
 ## 4. 部品の境目
 

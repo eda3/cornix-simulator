@@ -4,7 +4,7 @@
 
 - 振る舞いの正は `docs/design.md`（以下 design。B-nn と、3節の表）。テストで確かめる中身は `docs/test-items.md`（①〜⑲）。事実の根拠は `docs/research.md`（以下 research）。この3つと食い違うことは書かない。食い違いを見つけたら、直さずに止まって聞く。
 - 並べ方は「危ない所から」。1周目で、えだの PC でのキーの届き方（いちばん分かっていない所）を測る。2周目で、レイヤーの決まり（間違えると、動いているように見えたまま結果がずれる所）を、ブラウザなしで固める。
-- 周ごとにブランチを切る（名前は、各周の見出しの下）。周の最初の項目に入る前に、そのブランチが無ければ、main の先頭から作って切り替える。push と PR の作成は、周の終わりの【えだ】の項目で、えだが Claude Code に頼む。
+- 周ごとにブランチを切る（名前は、各周の見出しの下）。周の最初の項目に入る前に、そのブランチが無ければ、main の先頭から作って切り替える。周の終わりに、Claude Code が push して PR を作る。合流は、えだが差分を読んで頼む。
 - 検証のコマンドは CLAUDE.md の Workflow。`cornix_web` を変えた項目は、wasm32 向けの clippy と、wasm-pack のビルドも通す。
 - 決まっていない振る舞いに当たったら、推測で埋めずに、質問一覧だけ返して止まる。
 - 依存クレートの版は、crates.io の最新の安定版を選ぶ（2026-10-03 の版は research 5.1節）。
@@ -29,7 +29,7 @@
     6. ブラウザの版・IME・キーボードの型番も書く
 - [ ] 【えだ】下段の対応表と、JIS の文字の表を決める（design 3.2節・3.4節。design 6節の M-1〜M-7）
   - メモ: Claude Code に「`docs/measurements.md` の①〜④を読んで、design 3.4節の決め方で、下段の対応表の案を出して」と頼む。えだが選んだら、Claude Code が次を行う（文書だけを変える。コミットは1つ）。(a) design 3.4節に、下段の表を足す。上の3段で、届き方が怪しかったキーは外す (b) design 3.2節の JIS の列を、④の実測に合わせる (c) B-43 の注意の文を、②③の実測に合わせる (d) design 6節の M-1〜M-7 を、分かったことで書き直す (e) 見本（design 3.5節）の MO(1)・MO(2)・Space・Enter・Bksp の位置に、手元のキーが当たらないときは、見本と対応表のどちらを直すかを、えだに聞く
-- [ ] 【えだ】PR を作ってもらい、差分を読んで main へ合流する
+- [ ] 【えだ】PR の差分を読んで、合流を頼む
 
 ## 2周目: ロジック（cornix_logic）
 
@@ -57,7 +57,7 @@
 - [ ] `view` を作り、⑬を満たす（B-12〜B-19）
   - メモ: `engine` の状態・配列・表示するレイヤー（自動か番号）・手元のキーの名前を出すかを受けて、位置ごとの「図に出す中身」と、有効なレイヤーの番号を返す。DOM には触らない
 - [ ] 点検: test-reviewer に点検させ、指摘を壊し方で確かめて直す（最大2回）
-- [ ] 【えだ】PR を作ってもらい、差分を読んで main へ合流する
+- [ ] 【えだ】PR の差分を読んで、合流を頼む
 
 ## 3周目: 画面（cornix_web）
 
@@ -82,7 +82,7 @@
   - メモ: この周で `cornix_logic` に足した判断があれば、そこが中心
 - [ ] 【えだ】ブラウザで⑭〜⑱を見て、結果を `docs/measurements.md` の⑤に書く
   - メモ: 通らなかった番号と、見えたことを書く。直しは、この下に項目を足す（1件1項目）
-- [ ] 【えだ】PR を作ってもらい、差分を読んで main へ合流する
+- [ ] 【えだ】PR の差分を読んで、合流を頼む
 
 ## 4周目: 公開する
 
@@ -97,7 +97,7 @@
   - メモ: `.github/workflows/pages.yml`。main への push と、手動（workflow_dispatch）で動く。流れは、checkout → `rustup target add wasm32-unknown-unknown` → wasm-pack を入れる（公式のリリースの `wasm-pack-v0.15.0-x86_64-unknown-linux-musl.tar.gz` を curl で取って展開する。版は固定）→ `cargo test --workspace` → `wasm-pack build cornix_web --target web --out-dir ../static/pkg --no-typescript` → `actions/configure-pages` → `actions/upload-pages-artifact`（path は `static`）→ `actions/deploy-pages`。使う Action は、公式の actions/* だけ（版は research 5.2節）。権限は `contents: read`・`pages: write`・`id-token: write`。テストが落ちたら、その先へ進まない
   - 完了条件: workflow のファイルがある。実際に通るかは、次の【えだ】
 - [ ] 【えだ】Pages の設定をして、公開する
-  - メモ: GitHub の Settings → Pages → Build and deployment の Source を「GitHub Actions」にする。PR を作ってもらい、差分を読んで main へ合流する。Actions の実行が成功するのを見る。失敗したら、ログの先頭20行を `docs/measurements.md` の⑥に貼って、Claude Code に直させる
+  - メモ: GitHub の Settings → Pages → Build and deployment の Source を「GitHub Actions」にする。PR の差分を読んで、合流を頼む。Actions の実行が成功するのを見る。失敗したら、ログの先頭20行を `docs/measurements.md` の⑥に貼って、Claude Code に直させる
 - [ ] 【えだ】公開ページで、⑲を確かめる
   - メモ: 結果を `docs/measurements.md` の⑥に書く
 

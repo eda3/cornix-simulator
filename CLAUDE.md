@@ -52,8 +52,8 @@
 - 手元でページを開くときは、`python -m http.server 8000 --directory static` を動かして `http://localhost:8000/` を開く（`file://` では WASM を読み込めないため）
 - ファイルの書き換えは Write／Edit の道具で行う（Bash や Python での書き換えは、チェックポイントと変更の追跡に乗らないため）
 - 1項目＝1コミット。コミットの文は「何をしたか」を1行で
-- main への push と合流は、えだが差分を読んでから行う
-- 周ごとにブランチを切って進める。ブランチへの push と PR の作成（`gh pr create`）は Claude Code が行ってよい。main への合流（`gh pr merge`）とブランチの削除は、えだが行う
+- commit と push は Claude Code が行う。周の作業は、周ごとのブランチに積み、周の終わりに Claude Code が push して PR を作る
+- main への合流（`gh pr merge`）とブランチの削除は、えだが PR の差分を読んで「合流して」と言ってから、Claude Code が行う
 
 ## テスト
 - テストはこのプロジェクトの検証役。既存のテストは中身を保ち、通らないときは実装の側を直す
