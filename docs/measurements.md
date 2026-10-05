@@ -171,7 +171,7 @@
 - 測った日: 2026-10-03（keyhac は止めた状態。えだの申告）
 - 測ったブラウザ: Edge 154.0.4258.53（測ったのが Edge であることは、えだの申告。版の出どころ: `(Get-Item "${env:ProgramFiles(x86)}\Microsoft\Edge\Application\msedge.exe").VersionInfo.ProductVersion`。動いていた msedge のプロセスの ProductVersion も同じ。2026-10-03 19:37 に読んだ）。Brave 154.1.96.61 でも試した（えだの申告）
 - 許可の確認が出たか: Edge＝出なかった。Brave＝出なかった（ブラウザの全画面の帯「全画面を終了するには Esc を押します」だけ）
-- Keyboard Lock が掛かったと、ページに出たか: Edge＝「Keyboard Lock が掛かりました」。Brave＝「Keyboard Lock は掛けていません」のまま（ボタンの文は「全画面をやめる」に変わった）
+- Keyboard Lock が掛かったと、ページに出たか: Edge＝「Keyboard Lock が掛かりました」。Brave＝「Keyboard Lock は掛けていません」のまま（ボタンの文は「全画面をやめる」に変わった）。`ad7ac1e` のあとは、Brave でも「Keyboard Lock を掛けられませんでした（このブラウザには navigator.keyboard がありません）」と出た（えだの申告・2026-10-03 19:55）
 - 全画面の抜け方: 記録の時点では、まだ全画面のまま（別のディスプレイの窓で作業中）
 
 下の表は、Edge で、全画面＋Keyboard Lock のとき。ページにフォーカスがある状態で押した（えだの申告）。
@@ -205,30 +205,90 @@
 
 キーを、そのままと、Shift を押しながらで押して、計測ページの key の値を書く。design 3.2節の JIS の列と見比べる。
 
-- 測った日:
+- 測った日: 2026-10-05（Brave。keyhac は止めた状態。えだの申告）。Brave の版は 154.1.96.61（出どころ: `(Get-Item "$env:LOCALAPPDATA\BraveSoftware\Brave-Browser\Application\brave.exe").VersionInfo.ProductVersion`。動いていた brave のプロセスの ProductVersion も同じ。2026-10-05 14:09 に読んだ）
 
 | 手元の刻印 | code | key（そのまま） | key（Shift） | design 3.2節と同じか |
 |---|---|---|---|---|
-| 1 | | | | |
-| 2 | | | | |
-| 6 | | | | |
-| 7 | | | | |
-| 8 | | | | |
-| 9 | | | | |
-| 0 | | | | |
-| - | | | | |
-| ^ | | | | |
-| ¥ | | | | |
-| @ | | | | |
-| [ | | | | |
-| ; | | | | |
-| : | | | | |
-| ] | | | | |
-| , | | | | |
-| . | | | | |
-| / | | | | |
-| ろ | | | | |
-| 半角/全角 | | | | |
+| 1 | Digit1 | 1 | ! | 同じ |
+| 2 | Digit2 | 2 | " | 同じ |
+| 6 | Digit6 | 6 | & | 同じ |
+| 7 | Digit7 | 7 | ' | 同じ |
+| 8 | Digit8 | 8 | ( | 同じ |
+| 9 | Digit9 | 9 | ) | 同じ |
+| 0 | Digit0 | 0 | 0 | key は違う（design の Shift は「なし」、key は `0`）。メモ帳では、何も打たれなかった |
+| - | Minus | - | = | 同じ |
+| ^ | Equal | ^ | ~ | 同じ |
+| ¥ | IntlYen | \ | \| | 同じ |
+| @ | BracketLeft | @ | ` | 同じ |
+| [ | BracketRight | [ | { | 同じ |
+| ; | Semicolon | ; | + | 同じ |
+| : | Quote | : | * | 同じ |
+| ] | Backslash | ] | } | 同じ |
+| , | Comma | , | < | 同じ |
+| . | Period | . | > | 同じ |
+| / | Slash | / | ? | 同じ |
+| ろ | IntlRo | \ | _ | 同じ |
+| 半角/全角 | Backquote | Hankaku（keydown 0・keyup 1） | Zenkaku（keydown 0・keyup 1） | 文字は出ていない（design も「なし」） |
+
+- メモ帳での確かめ（2026-10-05。えだの申告）: IME を切って Shift+0 を押すと、何も打たれなかった。計測ページの key は `0` なので、このキーの Shift では、key の値と、打たれる文字が同じでない
+- 半角/全角のキー: 2回とも、keydown は届かず、keyup だけ届いた。key は、そのままの回が Hankaku、Shift の回が Zenkaku。①の「③半角/全角・かな」の表では、Shift なしの2回で、Hankaku と Zenkaku の両方が出ている。値が Shift で変わったのか、押すたびに入れ替わるのかは、この測り方では分からない
+
+出どころ（計測ページが出した表。そのまま押した回）:
+
+| 手元の刻印 | code | key | location | keydown | keyup | repeat | メモ |
+|---|---|---|---|---|---|---|---|
+| | Digit1 | 1 | 0 | 1 | 1 | 0 | |
+| | Digit2 | 2 | 0 | 1 | 1 | 0 | |
+| | Digit3 | 3 | 0 | 1 | 1 | 0 | |
+| | Digit4 | 4 | 0 | 1 | 1 | 0 | |
+| | Digit5 | 5 | 0 | 1 | 1 | 0 | |
+| | Digit6 | 6 | 0 | 1 | 1 | 0 | |
+| | Digit7 | 7 | 0 | 1 | 1 | 0 | |
+| | Digit8 | 8 | 0 | 1 | 1 | 0 | |
+| | Digit9 | 9 | 0 | 1 | 1 | 0 | |
+| | Digit0 | 0 | 0 | 1 | 1 | 0 | |
+| | Minus | - | 0 | 1 | 1 | 0 | |
+| | Equal | ^ | 0 | 1 | 1 | 0 | |
+| | IntlYen | \ | 0 | 1 | 1 | 0 | |
+| | BracketLeft | @ | 0 | 1 | 1 | 0 | |
+| | BracketRight | [ | 0 | 1 | 1 | 0 | |
+| | Semicolon | ; | 0 | 1 | 1 | 0 | |
+| | Quote | : | 0 | 1 | 1 | 0 | |
+| | Backslash | ] | 0 | 1 | 1 | 0 | |
+| | Comma | , | 0 | 1 | 1 | 0 | |
+| | Period | . | 0 | 1 | 1 | 0 | |
+| | Slash | / | 0 | 1 | 1 | 0 | |
+| | IntlRo | \ | 0 | 1 | 1 | 0 | |
+| | Backquote | Hankaku | 0 | 0 | 1 | 0 | |
+
+出どころ（計測ページが出した表。Shift を押しながら押した回）:
+
+| 手元の刻印 | code | key | location | keydown | keyup | repeat | メモ |
+|---|---|---|---|---|---|---|---|
+| | ShiftLeft | Shift | 1 | 1 | 1 | 64 | |
+| | Digit1 | ! | 0 | 1 | 1 | 0 | |
+| | Digit2 | " | 0 | 1 | 1 | 0 | |
+| | Digit3 | # | 0 | 1 | 1 | 0 | |
+| | Digit4 | $ | 0 | 1 | 1 | 0 | |
+| | Digit5 | % | 0 | 1 | 1 | 0 | |
+| | Digit6 | & | 0 | 1 | 1 | 0 | |
+| | Digit7 | ' | 0 | 1 | 1 | 0 | |
+| | Digit8 | ( | 0 | 1 | 1 | 0 | |
+| | Digit9 | ) | 0 | 1 | 1 | 0 | |
+| | Digit0 | 0 | 0 | 1 | 1 | 0 | |
+| | Minus | = | 0 | 1 | 1 | 0 | |
+| | Equal | ~ | 0 | 1 | 1 | 0 | |
+| | IntlYen | \| | 0 | 1 | 1 | 0 | |
+| | BracketLeft | ` | 0 | 1 | 1 | 0 | |
+| | BracketRight | { | 0 | 1 | 1 | 0 | |
+| | Semicolon | + | 0 | 1 | 1 | 0 | |
+| | Quote | * | 0 | 1 | 1 | 0 | |
+| | Backslash | } | 0 | 1 | 1 | 0 | |
+| | Comma | < | 0 | 1 | 1 | 0 | |
+| | Period | > | 0 | 1 | 1 | 0 | |
+| | Slash | ? | 0 | 1 | 1 | 0 | |
+| | IntlRo | _ | 0 | 1 | 1 | 0 | |
+| | Backquote | Zenkaku | 0 | 0 | 1 | 0 | |
 
 ## ⑤ ブラウザで見る項目（3周目。`docs/test-items.md` の⑭〜⑱）
 
