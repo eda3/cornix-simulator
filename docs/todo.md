@@ -22,7 +22,7 @@
 - [x] 計測ページの Markdown を、`docs/measurements.md` ①の枠と同じ8列にする（B-52）
 - [x] 文書を「keyhac を止めて使う」の決定に合わせる
 - [x] 計測ページで、navigator.keyboard が null のブラウザ（Brave）でも B-50 の表示が出て、全画面を抜けたときにボタンの文が戻るようにする
-- [ ] 【えだ】計測ページで、手元のキーの届き方を測る（①の実測。`docs/measurements.md` の①〜④）
+- [x] 【えだ】計測ページで、手元のキーの届き方を測る（①の実測。`docs/measurements.md` の①〜④）
   - メモ: 手順。
     1. `wasm-pack build cornix_web --target web --out-dir ../static/pkg --no-typescript`
     2. `python -m http.server 8000 --directory static` を動かしたまま、Chrome で `http://localhost:8000/keytest.html` を開く
