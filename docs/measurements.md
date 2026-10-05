@@ -143,7 +143,7 @@
 | Ctrl+F | 動かなかった | ControlLeft・KeyF |
 | Ctrl+P | 動かなかった | ControlLeft・KeyP |
 | Win を単独で押して、離す | 動いた（スタートメニューが開いた） | MetaLeft（keydown のみ。keyup は届かず） |
-| アプリケーションキー | | |
+| アプリケーションキー | 動かなかった（メニューは出なかった）。手元では、右の command（刻印）のキー。2026-10-05 に測った | ContextMenu（keydown・keyup とも届いた） |
 
 出どころ（計測ページが出した表）:
 
@@ -164,6 +164,14 @@
 | | KeyP | p | 0 | 1 | 1 | 0 | |
 | | MetaLeft | Meta | 1 | 1 | 0 | 0 | |
 
+- アプリケーションキーの行は、2026-10-05 に測った（Brave。keyhac は止めた状態。「preventDefault する」は入り。開発者ツールの Console からは、何も足していない。えだの申告）。計測ページを開いていない所で同じキーを押すと、メニューが出た（えだの申告）。Brave の版は 154.1.96.61（出どころ: `(Get-Item "$env:LOCALAPPDATA\BraveSoftware\Brave-Browser\Application\brave.exe").VersionInfo.ProductVersion`。動いていた brave のプロセスの ProductVersion も同じ。2026-10-05 14:26 に読んだ）
+
+出どころ（2026-10-05。計測ページが出した表）:
+
+| 手元の刻印 | code | key | location | keydown | keyup | repeat | メモ |
+|---|---|---|---|---|---|---|---|
+| | ContextMenu | ContextMenu | 0 | 1 | 1 | 0 | |
+
 ## ③ 全画面＋Keyboard Lock（1周目。design 6節の M-6）
 
 計測ページの「全画面＋Keyboard Lock」を押してから試す。
@@ -172,7 +180,7 @@
 - 測ったブラウザ: Edge 154.0.4258.53（測ったのが Edge であることは、えだの申告。版の出どころ: `(Get-Item "${env:ProgramFiles(x86)}\Microsoft\Edge\Application\msedge.exe").VersionInfo.ProductVersion`。動いていた msedge のプロセスの ProductVersion も同じ。2026-10-03 19:37 に読んだ）。Brave 154.1.96.61 でも試した（えだの申告）
 - 許可の確認が出たか: Edge＝出なかった。Brave＝出なかった（ブラウザの全画面の帯「全画面を終了するには Esc を押します」だけ）
 - Keyboard Lock が掛かったと、ページに出たか: Edge＝「Keyboard Lock が掛かりました」。Brave＝「Keyboard Lock は掛けていません」のまま（ボタンの文は「全画面をやめる」に変わった）。`ad7ac1e` のあとは、Brave でも「Keyboard Lock を掛けられませんでした（このブラウザには navigator.keyboard がありません）」と出た（えだの申告・2026-10-03 19:55）
-- 全画面の抜け方: 記録の時点では、まだ全画面のまま（別のディスプレイの窓で作業中）
+- 全画面の抜け方: 2026-10-03 の Edge は、マウスを画面の上へ動かすと出るボタンで抜けた（えだの申告。2026-10-05 に聞いた）。2026-10-05 にも、全画面をマウスで抜けた（えだの申告）。2026-10-03 の記録の時点では、まだ全画面のままだった（別のディスプレイの窓で作業中）
 
 下の表は、Edge で、全画面＋Keyboard Lock のとき。ページにフォーカスがある状態で押した（えだの申告）。
 
