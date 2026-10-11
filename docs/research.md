@@ -216,7 +216,7 @@ RMK のソース（S7 のタグ rmk-v0.8.3）を読んだ結果。D-12 の (1)(2
 - Windows のスキャンコードと code の対応（S11 `files/en-us/web/api/ui_events/keyboard_event_code_values/index.md` の Windows の表。Firefox と Chrome で同じ）: 0x001A＝BracketLeft、0x001B＝BracketRight、0x0027＝Semicolon、0x0028＝Quote、0x0029＝Backquote、0x002B＝Backslash、0x003A＝CapsLock、0x0070＝KanaMode、0x0073＝IntlRo、0x0079＝Convert、0x007B＝NonConvert、0x007D＝IntlYen、0xE05B＝MetaLeft、0xE05C＝MetaRight、0xE05D＝ContextMenu、0xE038＝AltRight、0xE01D＝ControlRight [A]。
 - だから、日本語配列のキーボードでは、@＝BracketLeft、[＝BracketRight、;＝Semicolon、:＝Quote、]＝Backslash、英数＝CapsLock になる [B・スキャンコードと刻印の対応は一般的な知識。えだの PC での値は実測で確かめる]。
 - 位置で当てると、文字の3段は左右6列ずつそろう。左手は Tab Q W E R T／英数 A S D F G／Shift Z X C V B。右手は Y U I O P @／H J K L ; :／N M , . / ろ [B]。
-- 下段は足りない。Cornix は片手6キー（左右で12）。日本語配列のキーボードは、左から Ctrl・Win・Alt・無変換・Space・変換・かな・Alt・(Win)・アプリケーション・Ctrl の10〜11キーで、Space は1つ [B・チャット側の報告]。えだのキーボードは REALFORCE の日本語配列・テンキーレス（えだ発言）。下段の正確な並びと、Windows 用か Mac 用かは [未確認]。
+- 下段は足りない。Cornix は片手6キー（左右で12）。日本語配列のキーボードは、左から Ctrl・Win・Alt・無変換・Space・変換・かな・Alt・(Win)・アプリケーション・Ctrl の10〜11キーで、Space は1つ [B・チャット側の報告]。えだのキーボードは REALFORCE 114 JP（PnP 名。`USB\VID_0853&PID_0149`）、Mac用 JIS を Windows で使用（えだ発言）。下段の並びは measurements ①の「素の JIS との差」の行 [A・2026-10-03]。
 
 ### 4.2 届き方が怪しいキー（他人の観測。えだの PC では未確認）
 
