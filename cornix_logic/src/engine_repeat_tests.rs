@@ -76,6 +76,30 @@ fn item8_repeat_uses_the_current_modifiers() -> TestResult {
 }
 
 #[test]
+fn item8_repeat_uses_the_given_layout() -> TestResult {
+    // (4,0) は KC_LBRACKET: JIS では @、US では [（design 3.2節）
+    let mut engine = sample()?;
+    engine.press(4, 0, Layout::Us).ok_or("(4,0) が押せない")?;
+    assert_eq!(engine.repeat(4, 0, Layout::Us), FieldAction::Insert('['));
+    assert_eq!(engine.repeat(4, 0, Layout::Jis), FieldAction::Insert('@'));
+
+    // (7,3) を押したままの (6,1) は KC_UNDS: JIS では =、US では _
+    let mut engine = sample()?;
+    engine.press(7, 3, Layout::Us).ok_or("(7,3) が押せない")?;
+    engine.press(6, 1, Layout::Us).ok_or("(6,1) が押せない")?;
+    assert_eq!(engine.repeat(6, 1, Layout::Us), FieldAction::Insert('_'));
+    assert_eq!(engine.repeat(6, 1, Layout::Jis), FieldAction::Insert('='));
+
+    // (3,3) を押したままの (0,0) は KC_GRAVE: JIS では文字なし、US では `
+    let mut engine = sample()?;
+    engine.press(3, 3, Layout::Us).ok_or("(3,3) が押せない")?;
+    engine.press(0, 0, Layout::Us).ok_or("(0,0) が押せない")?;
+    assert_eq!(engine.repeat(0, 0, Layout::Us), FieldAction::Insert('`'));
+    assert_eq!(engine.repeat(0, 0, Layout::Jis), FieldAction::None);
+    Ok(())
+}
+
+#[test]
 fn item8_repeat_of_bksp_and_with_ctrl() -> TestResult {
     let mut engine = sample()?;
     let mut field = "abc".to_owned();
