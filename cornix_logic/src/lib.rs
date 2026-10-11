@@ -4,6 +4,7 @@
 //! ブラウザ（wasm-bindgen・web-sys）には依存しない（判断を `cargo test` で確かめるため）。
 //! 振る舞いの正は `docs/design.md`。中身は、`docs/todo.md` の2周目で足す。
 
+pub mod chars;
 pub mod keycode;
 pub mod sample;
 #[cfg(test)]
