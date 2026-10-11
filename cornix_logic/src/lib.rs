@@ -5,3 +5,7 @@
 //! 振る舞いの正は `docs/design.md`。中身は、`docs/todo.md` の2周目で足す。
 
 pub mod keycode;
+pub mod sample;
+#[cfg(test)]
+mod testkit;
+pub mod vil;
