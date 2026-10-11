@@ -97,6 +97,29 @@ fn item4_row_not_array() -> Result<(), String> {
 }
 
 #[test]
+fn item4_row_errors_report_the_layer() -> Result<(), String> {
+    // レイヤー0は正しく、レイヤー2の行だけが壊れている
+    let mut rows = [GOOD_ROW; 8];
+    rows[7] = "null";
+    let text = vil_of(&[good_layer(), good_layer(), layer_of(&rows)]);
+    assert_eq!(error_of(&text)?, VilError::RowNotArray { layer: 2, row: 7 });
+
+    let bad = row_with_cols(6);
+    let mut rows = [GOOD_ROW; 8];
+    rows[0] = &bad;
+    let text = vil_of(&[good_layer(), layer_of(&rows)]);
+    assert_eq!(
+        error_of(&text)?,
+        VilError::BadColCount {
+            layer: 1,
+            row: 0,
+            found: 6
+        }
+    );
+    Ok(())
+}
+
+#[test]
 fn item4_bad_col_count() -> Result<(), String> {
     for cols in [6, 8, 0] {
         let bad = row_with_cols(cols);
