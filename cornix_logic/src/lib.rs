@@ -14,6 +14,7 @@ pub mod keycode;
 pub mod sample;
 #[cfg(test)]
 mod testkit;
+pub mod text;
 pub mod vil;
 #[cfg(test)]
 mod vil_tests;
