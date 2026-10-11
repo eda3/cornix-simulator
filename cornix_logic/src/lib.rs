@@ -9,3 +9,5 @@ pub mod sample;
 #[cfg(test)]
 mod testkit;
 pub mod vil;
+#[cfg(test)]
+mod vil_tests;
