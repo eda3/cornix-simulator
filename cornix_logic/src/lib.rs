@@ -3,3 +3,23 @@
 //! .vil の読み取り・レイヤーと修飾キー・文字への変換・対応表・座標・図に出す中身を、ここに置く。
 //! ブラウザ（wasm-bindgen・web-sys）には依存しない（判断を `cargo test` で確かめるため）。
 //! 振る舞いの正は `docs/design.md`。中身は、`docs/todo.md` の2周目で足す。
+
+pub mod chars;
+pub mod engine;
+#[cfg(test)]
+mod engine_repeat_tests;
+#[cfg(test)]
+mod engine_tests;
+pub mod geometry;
+pub mod hostmap;
+pub mod keycode;
+pub mod sample;
+#[cfg(test)]
+mod testkit;
+pub mod text;
+pub mod view;
+#[cfg(test)]
+mod view_tests;
+pub mod vil;
+#[cfg(test)]
+mod vil_tests;
