@@ -10,6 +10,8 @@ pub mod engine;
 mod engine_repeat_tests;
 #[cfg(test)]
 mod engine_tests;
+pub mod geometry;
+pub mod hostmap;
 pub mod keycode;
 pub mod sample;
 #[cfg(test)]
