@@ -132,10 +132,10 @@ Cornix のファームウェア（RMK）の動きに合わせる。根拠は res
 - **B-42** 「全画面で試す」を押すと、ページを全画面にして（`requestFullscreen`）、Keyboard Lock を掛ける（`navigator.keyboard.lock()`）。ボタンは「全画面をやめる」に変わり、押すと元に戻る。Keyboard Lock が無いブラウザでも、全画面にはする。
 - **B-43** 注意の文は、状態で変わる:
   - ふつうの窓: 「ふつうの窓では、Ctrl+W でタブが閉じ、Win キーでスタートメニューが開きます。Ctrl・Win・Alt も試すときは「全画面で試す」を使ってください。」
-  - 全画面で、Keyboard Lock が掛かっている: 「全画面です。Esc の長押し（2秒）で戻ります。」
+  - 全画面で、Keyboard Lock が掛かっている: 「全画面です。マウスを画面の上へ動かすと出るボタンで戻れます。」
   - 全画面で、Keyboard Lock が掛けられなかった（ブラウザが対応していない・許可されなかった）: 「全画面ですが、このブラウザでは Win キーなどを受けられません。」
-- **B-44** 全画面を抜けたとき（Esc の長押し・ボタン・そのほか、どの抜け方でも）、Keyboard Lock を外し、押されているキーを全部離した扱いにする（B-24）。
-- **B-45** 対象のブラウザは、Windows の Chrome と Edge。ほかのブラウザは確かめない（README に書く）。
+- **B-44** 全画面を抜けたとき（ブラウザのボタン・このページのボタン・そのほか、どの抜け方でも）、Keyboard Lock を外し、押されているキーを全部離した扱いにする（B-24）。
+- **B-45** 対象のブラウザは、Windows の Chrome と Edge。ほかのブラウザは確かめない（README に書く）。1周目で確かめたのは Edge（全画面＋Keyboard Lock まで。measurements ③）。Chrome は未実測。Brave は `navigator.keyboard` が null で Keyboard Lock が無いので、全画面と注意の文（3つ目）だけになる（measurements ③）。
 
 ### 2.10 計測ページ（keytest）
 
@@ -147,7 +147,7 @@ Cornix のファームウェア（RMK）の動きに合わせる。根拠は res
 - **B-49** 「preventDefault する」が入っている間（初期値は入り）、全部の keydown と keyup で、既定の動きを止める。外すと、止めない。
 - **B-50** 「全画面＋Keyboard Lock」は、B-42 と同じ動き。Keyboard Lock が掛かったか、掛けられなかったかを、ページに出す。
 - **B-51** 「記録を消す」で、まとめの表と直近のイベントが空になる。
-- **B-52** まとめの表と同じ中身を、Markdown の表の文字として、ページの下にも出す（マウスで選んでコピーし、`docs/measurements.md` に貼るため）。
+- **B-52** まとめの表の中身を、Markdown の表の文字として、ページの下にも出す（マウスで選んでコピーし、`docs/measurements.md` の①に貼るため）。列は、`docs/measurements.md` の①の枠と同じ8つ（手元の刻印・code・key・location・keydown・keyup・repeat・メモ）。code から repeat までの6列は、まとめの表（B-47）と同じ中身。手元の刻印とメモは、空で出す（えだが、貼ったあとに手で書くため）。見出しの2行は、①の枠と同じ文字列にする（`| 手元の刻印 | code | key | location | keydown | keyup | repeat | メモ |` と `|---|---|---|---|---|---|---|---|`）。8列にしたのは、えだの決定（2026-10-03）。
 
 ### 2.11 公開
 
@@ -210,8 +210,8 @@ KC_JYEN          なし   なし       \       |
 ```
 
 - 素が「なし」のキーの「名前」（B-15 と 3.7節で使う）: JIS の KC_GRAVE は「半角/全角」、US の KC_RO は「Ro」、US の KC_JYEN は「Yen」。
-- US の列は、US 配列の一般的な知識 [B]。JIS の列は、Windows の日本語配列の知識 [B]。JIS の列は、1周目の実測（えだの PC で、キーごとの `event.key` を見る）で確かめて、違っていたら、ここを直す（6節の M-4）。
-- JIS の KC_JYEN と KC_RO の素は、どちらも U+005C（バックスラッシュ。フォントによって ¥ に見える）。Windows の日本語配列では、¥ のキーも ろ のキーも、この文字を出す [B・記憶]。research 4.4節は KC_JYEN を「¥」と書いたが、ここが正。
+- US の列は、US 配列の一般的な知識 [B]。JIS の列は、1周目の実測で確かめた [A・measurements ④・2026-10-05]。文字の出る22キーの44個のうち43個が同じ。KC_0 の JIS Shift は「なし」のまま（計測ページの key は `0` だが、メモ帳では文字が出なかった。measurements ④）。
+- JIS の KC_JYEN と KC_RO の素は、どちらも U+005C（バックスラッシュ。フォントによって ¥ に見える）。Windows の日本語配列では、¥ のキーも ろ のキーも、この文字を出す [A・measurements ①④]。research 4.4節は KC_JYEN を「¥」と書いたが、ここが正。
 - JIS と US で文字が分かれるのは、KC_2・KC_6・KC_7・KC_8・KC_9・KC_0 の Shift 側、KC_MINUS の Shift 側、KC_EQUAL、KC_LBRACKET、KC_RBRACKET、KC_BSLASH、KC_NONUS_HASH、KC_SCOLON の Shift 側、KC_QUOTE、KC_GRAVE、KC_RO、KC_JYEN。
 
 ### 3.3 座標の表
@@ -280,9 +280,9 @@ KC_JYEN          なし   なし       \       |
 
 ### 3.4 手元のキーとの対応表
 
-手元のキーの code から、Cornix の位置を引く表。初期値は、日本語配列（JIS）のキーボード向け。表は、1か所のデータとして持つ（画面では変えられない）。
+手元のキーの code から、Cornix の位置を引く表。初版は、109配列の日本語配列（JIS）のキーボード向け（下段は、左から Ctrl・Win・Alt・無変換・Space・変換・カタカナひらがな・Alt・Win・アプリケーション・Ctrl。えだの決定・2026-10-11）。実測は REALFORCE Mac用 JIS＋KeySwap の環境で、code が同じキーについて行った（`docs/measurements.md` の①〜④）。表は、1か所のデータとして持つ（画面では変えられない）。
 
-上の3段（36キー）は、物理的な位置が同じキー [B・research 4.1節。1周目の実測で確かめる。届き方が怪しいキーは外す]:
+上の3段（36キー）は、物理的な位置が同じキー [A・measurements ①・2026-10-03。(1,0) の CapsLock だけ未実測]:
 
 | 位置 | code | 手元の刻印 | 位置 | code | 手元の刻印 |
 |---|---|---|---|---|---|
@@ -305,15 +305,33 @@ KC_JYEN          なし   なし       \       |
 | (2,4) | KeyV | V | (6,1) | Slash | / |
 | (2,5) | KeyB | B | (6,0) | IntlRo | ろ |
 
-下段（(3,0)〜(3,5) と (7,0)〜(7,5) の12キー）は、**未定**。1周目の実測のあとで、えだが決めて、ここに表を足す（`docs/todo.md` の1周目）。決め方（えだの決定。5節の Q-6）:
+- (1,0) の CapsLock は未実測（手元のキーボードでは、この位置のキーは ControlLeft を送る。KeySwap で CapsLock は Escape になる。measurements ①）
+- (1,0) には Escape（刻印 Esc）も当てる（決め方6の2つ目の code）
 
-1. 届かないキー、keyup が来ないキー、code が空で届くキーは、表に入れない。
+下段（(3,0)〜(3,5) と (7,0)〜(7,5) の12キー）は、次の表（えだの決定・2026-10-11）。決め方：
+
+1. 届かないキー、keyup が来ないキー、code が空で届くキーは、表に入れない。ただし、ふつうの窓で keyup が落ちるのが OS のショートカット（Win キーでスタートメニューが開く）のせいで、全画面＋Keyboard Lock では keydown・keyup とも届くキー（MetaLeft。measurements ①と③）は、入れる。
 2. 親指を先に当てる。Space を (3,5) に当てる。Space の左隣から外へ順に (3,4)・(3,3)、Space の右隣から外へ順に (7,5)・(7,4)・(7,3)。
 3. 外側の3キーは、左は左端のキーから順に (3,0)・(3,1)・(3,2)、右は右端のキーから順に (7,0)・(7,1)・(7,2)。
 4. 2 と 3 で、同じ手元のキーが2つの位置に当たるときは、親指（2）を取る。
 5. 手元のキーが当たらなかった位置は、えだが、余っているキー（数字の段など）を選んで当てるか、「手元のキー無し」のままにする。
+6. 要の位置（見本の MO(1)・MO(2)・Space・Enter・Bksp の位置と、(1,0) の Esc）には、どのキーボードにもあるキーを「2つ目の code」として当ててよい。2つの code は同じ位置を指し、どちらを押しても同じ。初版は Backspace→(7,4) と Escape→(1,0)（えだの決定・2026-10-11）。手元の刻印（B-16）は、1つ目の code の刻印と2つ目の code の刻印を「／」で並べて出す。
+7. えだのキーボードに無いキーの code（CapsLock・KanaMode・MetaRight）は、素の JIS で届く見込みの code を「未実測」の印つきで表に入れる。測れる環境が出たら、印を外す。
 
-下段が、左から Ctrl・Win・Alt・無変換・Space・変換・かな・Alt・Win・アプリケーション・Ctrl の並びで、全部が届く場合の例（未定。実測の前の目安）: (3,0) ControlLeft、(3,1) MetaLeft、(3,2) 手元のキー無し、(3,3) AltLeft、(3,4) NonConvert、(3,5) Space、(7,5) Convert、(7,4) KanaMode、(7,3) AltRight、(7,2) MetaRight、(7,1) ContextMenu、(7,0) ControlRight。
+| 位置 | code | 素の JIS の刻印 | 実測 | 2つ目の code |
+|---|---|---|---|---|
+| (3,0) | ControlLeft | Ctrl | [A・①] 届く（手元では A の左の control） | |
+| (3,1) | MetaLeft | Win | [A・①③] ふつうの窓では keyup が落ちる（①）。全画面＋Keyboard Lock では keydown・keyup とも届く（③） | |
+| (3,2) | 手元のキー無し | — | — | |
+| (3,3) | AltLeft | Alt | [A・①] 届く（手元では左 command） | |
+| (3,4) | NonConvert | 無変換 | [A・①] 届く（手元では 英数） | |
+| (3,5) | Space | Space | [A・①] 届く | |
+| (7,5) | Enter（余りのキー。決め方5） | 変換の位置。Convert は keydown が届かないので決め方1で外した | [A・①] Convert は keydown 0・keyup 1。Enter は届く | |
+| (7,4) | KanaMode | カタカナひらがな | 未実測（手元のキーボードにキーが無い） | Backspace（刻印 Backspace） |
+| (7,3) | AltRight | Alt | [A・①] 届く（手元では右 option） | |
+| (7,2) | MetaRight | Win | 未実測（手元のキーボードにキーが無い）。MetaLeft と同じ届き方の見込み [B] | |
+| (7,1) | ContextMenu | アプリケーション | [A・①②] 届く（手元では右 command。②で keydown・keyup とも届いた） | |
+| (7,0) | ControlRight | Ctrl | [A・①] 届く（手元では右 control） | |
 
 ### 3.5 見本のキーマップ（sample.vil）
 
@@ -321,7 +339,7 @@ KC_JYEN          なし   なし       \       |
 
 - 形は、公式の .vil と同じ（10レイヤー × 8行 × 7列。文字列 500個と、-1 が 60個。-1 の位置も同じ6か所）。uid は 9223372036854775808（符号つき64ビットの上限＋1）。Vial で実機に読み込むための物ではない（uid が実機と合わない）。
 - 考え方: レイヤー0の上の3段は、手元の日本語配列のキーボードの「同じ位置のキー」と同じ文字が出るようにした（右端の列は、上から @・:・ろ）。数字の段（半角/全角・1〜0・-）は、レイヤー1の上の段。残りの記号（^・¥・[・]）は、レイヤー1の右手。レイヤー2は、ファンクションキー・矢印（H J K L の位置）・Home／End など。
-- レイヤーの切り替えは、MO(1) が (3,3)、MO(2) が (7,3)。公式の初期キーマップと同じ位置（えだの決定・2026-10-03）。どちらも、手元の Alt が当たる見込みの位置。当たらないと分かったら、対応表を決めるときに、見本か対応表のどちらかを直す（6節の M-7）。
+- レイヤーの切り替えは、MO(1) が (3,3)、MO(2) が (7,3)。公式の初期キーマップと同じ位置（えだの決定・2026-10-03）。どちらも、手元の Alt が当たる位置（M-7。2026-10-11 に確かめた）。
 - テストの場面のために入れた物:
   - (3,3) は、レイヤー1では KC_NO（MO(1) を押している間、その位置が KC_NO になる。B-27）。(7,3) も、レイヤー2では KC_NO。
   - 左 Shift の位置 (2,0) は、レイヤー1では KC_TRNS（Shift が効く）。右 Shift の位置 (7,0) は、レイヤー1では KC_NO（効かない）。
@@ -602,6 +620,10 @@ crate は2つ（D-7）。ルートの `Cargo.toml` は `[workspace]` だけに�
 | Q-16 | 「自動」は、キーごとに「いま押したら決まるキーコード」。レイヤーの番号のボタンで、眺められる | 図と結果が一致する |
 | Q-17 | 押し続けの繰り返しを再現する | ふだんの打ち方のまま試せる |
 
+準備のあとで、えだが決めたこと:
+
+- シミュレータは keyhac を止めて使う。対応表（3.4節）は、keyhac を止めたときの届き方で組む（2026-10-03）。理由: 多くの人は keyhac を使っていないし、えだも使うときは無効にするため。
+
 ### 5.2 Claude Code が決めたこと
 
 えだは未確認。変えたいときは、この表と、該当する B-nn を直す。
@@ -630,7 +652,7 @@ crate は2つ（D-7）。ルートの `Cargo.toml` は `[workspace]` だけに�
 | C-20 | Shift 付きのキーコードでは、札を変えない。中に入れられるのは、文字のキー・欄を変えるキー・名前だけのキー。ほかの修飾つき（LCTL(kc) など）は未対応（B-34・3.1節） | Q-3 で決まったのは Shift だけ |
 | C-21 | Ctrl・Alt・GUI が入っている間は、Enter・Bksp・Space・Tab も、欄を変えない（B-35） | PC では、Ctrl+Enter などはショートカットになる。決まりが1つで済む |
 | C-22 | 「直前のキー」の形（3.7節）。修飾の順は Ctrl・Shift・Alt・GUI。左右は区別しない。文字を足したときは「→ 文字」を付ける | 何を押して、何が出たかを、1行で読める |
-| C-23 | JIS の ¥ と ろ のキーが出す文字は U+005C、Shift+0 は「なし」（3.2節） | Windows の日本語配列の記憶 [B]。実測で確かめる（M-4） |
+| C-23 | JIS の ¥ と ろ のキーが出す文字は U+005C、Shift+0 は「なし」（3.2節） | Windows の日本語配列の記憶 [B]。実測で確かめる（M-4）。④で確認した（2026-10-05） |
 | C-24 | KC_NONUS_BSLASH・テンキーのキー・メディアのキーは未対応 | 日本語配列での文字が確かめられていない。初期キーマップに出てこない |
 | C-25 | 計測ページ（keytest）は、実測のあとも残す。まとめの表を、Markdown の文字でも出す（2.10節） | 測り直せる。えだが `docs/measurements.md` に貼れる |
 | C-26 | Keyboard Lock が無いブラウザでも、全画面にはする。注意の文は3通り（B-42・B-43） | Chrome は、全画面なら Ctrl+W などをページに渡す（research 4.3節）。Keyboard Lock は、その上に Win キーなどを足す物 |
@@ -642,20 +664,21 @@ crate は2つ（D-7）。ルートの `Cargo.toml` は `[workspace]` だけに�
 
 | 番号 | 未確認の点 | 確かめる工程（`docs/todo.md`） | それまでの扱い |
 |---|---|---|---|
-| M-1 | 下段の対応表（3.4節） | 1周目の【えだ】（実測のあとで決める） | 未定のまま。2周目の `hostmap` の項目は、表が決まってから |
-| M-2 | 上の3段の code（とくに 英数・@・:・ろ）が、3.4節のとおりに届くか | 1周目の実測（measurements の①） | 3.4節の表は [B] |
-| M-3 | 右 Shift・半角/全角・英数・かな の届き方と、使っている IME | 1周目の実測（measurements の①） | 届き方が怪しいキーは、対応表に入れない |
-| M-4 | JIS の文字の表（3.2節。Shift+0、¥ と ろ のキーが出す文字） | 1周目の実測（measurements の④）→ 3.2節を直す | 3.2節の JIS の列は [B] |
-| M-5 | preventDefault で止まるキー（Tab・Alt 単独・Alt＋英字・F キーなど） | 1周目の実測（measurements の②）→ B-43 の文を直す | 止められる見込み [B] |
-| M-6 | 全画面＋Keyboard Lock で、Win キー・Ctrl+W が、ページに届くか | 1周目の実測（measurements の③） | 届く見込み [B] |
-| M-7 | 見本の MO(1)・MO(2)・Space・Enter・Bksp の位置に、手元のキーが当たるか | 1周目の【えだ】（対応表を決めるとき） | 当たらなければ、見本か対応表を直す |
-| M-8 | wasm-bindgen・web-sys から、全画面と Keyboard Lock を呼ぶ方法（web-sys に型があるか） | 1周目の先頭の項目（keytest を作るとき）。通った方法を、ここに書き戻す | `js_sys::Reflect` で呼べる見込み [B] |
+| M-1 | 下段の対応表（3.4節） | 1周目の【えだ】（実測のあとで決める） | 決まった（2026-10-11。3.4節の表）。未実測は CapsLock・KanaMode・MetaRight の3つ（決め方7）。2周目の `hostmap` は、この表から写す |
+| M-2 | 上の3段の code（とくに 英数・@・:・ろ）が、3.4節のとおりに届くか | 1周目の実測（measurements の①） | ①で確認。上の3段と記号は、全部 keydown 1・keyup 1（2026-10-03） |
+| M-3 | 右 Shift・半角/全角・英数・かな の届き方と、使っている IME | 1周目の実測（measurements の①） | ①で確認。右 Shift は location 2 で届く。半角/全角（Backquote）と かな（Convert）は keydown が届かない。英数 は NonConvert で届く。IME は Google 日本語入力（measurements ①の環境の行）。Convert は表に入れない（決め方1）。測り直しは M-15 |
+| M-4 | JIS の文字の表（3.2節。Shift+0、¥ と ろ のキーが出す文字） | 1周目の実測（measurements の④）→ 3.2節を直す | ④で確認（2026-10-05）。43/44 が 3.2節と同じ。Shift+0 は key が `0` で文字は出ない（3.2節に注記） |
+| M-5 | preventDefault で止まるキー（Tab・Alt 単独・Alt＋英字・F キーなど） | 1周目の実測（measurements の②）→ B-43 の文を直す | ②で確認（2026-10-03・10-05）。Tab・Space・矢印・Alt 単独・Alt+D/F・F5/F10/F12・Ctrl+L/F/P・アプリケーションキーは止まった。Win 単独は止まらない（スタートメニューが開く）→ B-43 の1つ目の文のとおり |
+| M-6 | 全画面＋Keyboard Lock で、Win キー・Ctrl+W が、ページに届くか | 1周目の実測（measurements の③） | ③で確認（2026-10-03）。Edge では Win 単独・Win+D・Alt+Tab・Ctrl+W/T/N が全部ページに届いた。Brave は Keyboard Lock が無い（M-8） |
+| M-7 | 見本の MO(1)・MO(2)・Space・Enter・Bksp の位置に、手元のキーが当たるか | 1周目の【えだ】（対応表を決めるとき） | 当たる（2026-10-11）。MO(1)←AltLeft、MO(2)←AltRight、Space←Space、Enter←Enter（余りのキー）、Bksp←KanaMode［未実測］と Backspace（2つ目の code）。見本と対応表は、どちらも直さない |
+| M-8 | wasm-bindgen・web-sys から、全画面と Keyboard Lock を呼ぶ方法（web-sys に型があるか） | 呼ぶ方法は、1周目の先頭の項目で決まった（2026-10-03。右の欄）。利用者の操作で入る本物の全画面と、許可の確認のあとで Keyboard Lock が掛かるかは [未確認]（1周目の実測。measurements の③） | 通った方法（`cornix_web/src/keytest.rs`。web-sys 0.3.106・js-sys 0.3.106・wasm-bindgen 0.2.129）: (1) 全画面は、web-sys に型がある。`Element::request_fullscreen`（`document.documentElement` に呼ぶ）・`Document::exit_fullscreen`・`Document::fullscreen_element`。入った・抜けたは、`fullscreenchange` で知る (2) Keyboard Lock は、web-sys に型が無い（`Keyboard` も `Navigator::keyboard` も無い）[A・web-sys のソースを見た]。`js_sys::Reflect::get` で `navigator.keyboard` と、その `lock`・`unlock` を取り、`js_sys::Function::call0` で呼ぶ。`navigator.keyboard` が undefined か null なら、Keyboard Lock の無いブラウザ（Brave は null を返す [A・2026-10-03 に、ヘッドレスの Brave 154.1.96.61 で見た]） (3) `lock()` は、`fullscreenchange` で全画面に入ったのを見てから呼ぶ（Chromium の `KeyboardLockController::LockKeyboard` は、許可が出た時点でタブが全画面でないと、掛けずに戻る [A・`chrome/browser/ui/exclusive_access/keyboard_lock_controller.cc`。2026-10-03 の main を読んだ]）。抜けたら `unlock()` を呼ぶ (4) `lock()` が返す Promise は、`js_sys::Promise::then2` に `Closure` を2つ渡して受ける（wasm-bindgen-futures は要らない）。結果が来たときに全画面を抜けていたら、「掛かった」とは出さない。確かめたこと [A]: wasm32 向けの clippy と wasm-pack のビルドが通る。ヘッドレスの Edge で、`fullscreenElement` と `navigator.keyboard` を偽物に差し替えて `fullscreenchange` を送ると、`lock`・`unlock` が引数なしで呼ばれ、成功・失敗・Keyboard Lock が無い場合で、ページの文が分かれる |
 | M-9 | GitHub Actions の workflow が通るか | 4周目 | research 5.3節の a |
 | M-10 | 実機でのレイヤーの動き、tri_layer を使っているか（research の U-1〜U-3） | 確かめる手段が無い | RMK のソースどおりとして進める。持ち主に聞けたら、research と 2.5節を直す |
 | M-11 | 座標の数値を使うことへの、メーカーの許可 | 未確認のまま（えだの判断） | README に「未確認」と書く |
 | M-12 | Vial の dummy で保存した .vil（4レイヤー・uid が 0 の見込み）が読めるか | 自動のテストは、同じ形の自作の .vil で確かめる（test-items の③）。実物は、えだが試すとき | B-09 のとおりなら読める |
 | M-13 | KC_NONUS_HASH の、US での文字 | 確かめる手段が無い（日本語配列のキーボードには、対応するキーが無い） | 3.2節の値 [B] |
 | M-14 | 公式の .vil と画像を、配り直してよいか | 未確認のまま | `local/` に置き、git に入れない |
+| M-15 | かな（Convert）が、IME のキー設定で直接入力の「変換」の割り当て（Mozc の ms-ime.tsv では 136行目 `DirectInput Henkan Reconvert`。2026-10-05 取得）を外すと届くか | 後日。えだが、IME の設定を変えて①の計測ページで測る | 届けば (7,5) に Convert を当て、Enter を2つ目の code に回す（えだの決定・2026-10-11 の質問2） |
 
 ## 7. 最初の版の範囲の外と、あとの候補
 

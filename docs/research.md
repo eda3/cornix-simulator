@@ -216,7 +216,7 @@ RMK のソース（S7 のタグ rmk-v0.8.3）を読んだ結果。D-12 の (1)(2
 - Windows のスキャンコードと code の対応（S11 `files/en-us/web/api/ui_events/keyboard_event_code_values/index.md` の Windows の表。Firefox と Chrome で同じ）: 0x001A＝BracketLeft、0x001B＝BracketRight、0x0027＝Semicolon、0x0028＝Quote、0x0029＝Backquote、0x002B＝Backslash、0x003A＝CapsLock、0x0070＝KanaMode、0x0073＝IntlRo、0x0079＝Convert、0x007B＝NonConvert、0x007D＝IntlYen、0xE05B＝MetaLeft、0xE05C＝MetaRight、0xE05D＝ContextMenu、0xE038＝AltRight、0xE01D＝ControlRight [A]。
 - だから、日本語配列のキーボードでは、@＝BracketLeft、[＝BracketRight、;＝Semicolon、:＝Quote、]＝Backslash、英数＝CapsLock になる [B・スキャンコードと刻印の対応は一般的な知識。えだの PC での値は実測で確かめる]。
 - 位置で当てると、文字の3段は左右6列ずつそろう。左手は Tab Q W E R T／英数 A S D F G／Shift Z X C V B。右手は Y U I O P @／H J K L ; :／N M , . / ろ [B]。
-- 下段は足りない。Cornix は片手6キー（左右で12）。日本語配列のキーボードは、左から Ctrl・Win・Alt・無変換・Space・変換・かな・Alt・(Win)・アプリケーション・Ctrl の10〜11キーで、Space は1つ [B・チャット側の報告]。えだのキーボードは REALFORCE の日本語配列・テンキーレス（えだ発言）。下段の正確な並びと、Windows 用か Mac 用かは [未確認]。
+- 下段は足りない。Cornix は片手6キー（左右で12）。日本語配列のキーボードは、左から Ctrl・Win・Alt・無変換・Space・変換・かな・Alt・(Win)・アプリケーション・Ctrl の10〜11キーで、Space は1つ [B・チャット側の報告]。えだのキーボードは REALFORCE 114 JP（PnP 名。`USB\VID_0853&PID_0149`）、Mac用 JIS を Windows で使用（えだ発言）。下段の並びは measurements ①の「素の JIS との差」の行 [A・2026-10-03]。
 
 ### 4.2 届き方が怪しいキー（他人の観測。えだの PC では未確認）
 
@@ -382,6 +382,7 @@ HID の番号ごとの文字。左が素、右が Shift。JIS の側は、1周�
 | U-3 | Cornix のファームウェアが tri_layer を使っているか | 同上（初期キーマップの範囲では結果が変わらない） |
 | U-4 | えだのキーボードの下段の並びと、Windows 用か Mac 用か | 1周目の先頭の実測（`docs/measurements.md`） |
 | U-5 | keyhac が動いているときの、無変換・変換などの届き方 | 同上（keyhac を動かしたままと、止めたときの両方） |
+| | → 2026-10-03 えだの決定で、シミュレータは keyhac を止めて使うことに | |
 | U-6 | 右 Shift の code、半角/全角・英数・かな の keydown と keyup、使っている IME | 同上 |
 | U-7 | preventDefault で止まるキー（Tab・Alt 単独・F キーなど）と、全画面＋Keyboard Lock で Win キーが届くか | 同上 |
 | U-8 | JIS の文字の表（4.4節。Shift+0 など） | 同上（event.key を見る） |
@@ -424,6 +425,7 @@ HID の番号ごとの文字。左が素、右が Shift。JIS の側は、1周�
 
 **Q-6（e）: 手元のキーが足りない下段は、どういう方針で当てますか。対応表を画面で変えられるようにしますか。**
 - 事実: Cornix の下段は、片手が「外側の3キー＋親指の3キー」で、左右で12キー [A]。日本語配列のキーボードの下段は10〜11キーで、Space は1つ [B・チャット側の報告]。keyhac が無変換と変換を使っているので、この2つが届くかは [未確認]。半角/全角と右 Shift は、届き方が怪しい [B・4.2節]。初期値の表そのものは、1周目の実測のあとで決める（D-8）。
+  - → 2026-10-03 えだの決定で、シミュレータは keyhac を止めて使うことに
 - 選択肢（方針）: a. 親指を先に当てる（Space・無変換・変換など、親指で押せるキーを Cornix の親指キーに当てる。外側の3キーは Ctrl・Win・Alt の側から当て、足りない位置は、手元で余っているキーに当てる。それでも足りない位置は「手元のキー無し」と表示する）／ b. 外側を先に当てる（Ctrl・Win・Alt を外側の3キーに当て、親指は残りのキーで当てる）／ c. 足りない位置は、画面のクリックで押す
 - 選択肢（変え方）: 1. 1周目は、表を1か所のデータとして持つだけ（変えるときは、その表を直す）／ 2. 画面で1キーずつ変えられて、ブラウザに覚える
 - 推奨: a と 1（MO は親指にあり、「レイヤーでやっていけるか」を確かめるには、親指の位置が実物に近いほうがよいため。画面での変更は、表が決まってからの候補にする）

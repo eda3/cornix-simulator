@@ -27,6 +27,7 @@
 3. Cornix の初期キーマップで試すときは、下の入手先から `cornix-default-keymap.vil` を入手して、「.vil を選ぶ」で読み込みます。
 4. Ctrl・Win・Alt も試すときは、「全画面で試す」を押します（ふつうの窓では、Ctrl+W でタブが閉じ、Win キーでスタートメニューが開きます）。
 5. 出る文字は、PC の側の配列（JIS か US）で変わります。画面で切り替えられます（初期値は JIS）。
+6. キーの割り当てを変える常駐ソフト（keyhac など）は、止めて使います。
 
 ## .vil の入手先
 
@@ -39,6 +40,8 @@ Cornix の初期キーマップ（`cornix-default-keymap.vil`）は、公式マ�
 ## 対象
 
 - ブラウザ: Windows の Chrome と Edge。ほかのブラウザは、確かめていません。
+- 確かめたのは Edge（全画面＋Keyboard Lock まで）。Chrome は未実測。Brave は Keyboard Lock が無いので、全画面と注意の文だけになります。
+- キーボード: 初版は、109配列の日本語配列（JIS）向けです。実測は REALFORCE Mac用 JIS＋KeySwap の環境で行い、CapsLock・カタカナひらがな・右 Win のキーは未実測です。
 - 手元のキーボード: 日本語配列（JIS）向けの対応表を持っています。
 
 ## できないこと（最初の版）

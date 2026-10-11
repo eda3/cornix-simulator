@@ -4,7 +4,7 @@
 
 - 振る舞いの正は `docs/design.md`（以下 design。B-nn と、3節の表）。テストで確かめる中身は `docs/test-items.md`（①〜⑲）。事実の根拠は `docs/research.md`（以下 research）。この3つと食い違うことは書かない。食い違いを見つけたら、直さずに止まって聞く。
 - 並べ方は「危ない所から」。1周目で、えだの PC でのキーの届き方（いちばん分かっていない所）を測る。2周目で、レイヤーの決まり（間違えると、動いているように見えたまま結果がずれる所）を、ブラウザなしで固める。
-- 周ごとにブランチを切る（名前は、各周の見出しの下）。周の最初の項目に入る前に、そのブランチが無ければ、main の先頭から作って切り替える。周の終わりに、Claude Code が push して PR を作る。合流は、えだが差分を読んで頼む。
+- 周ごとにブランチを切る（名前は、各周の見出しの下）。周の最初の項目に入る前に、そのブランチが無ければ、main の先頭から作って切り替える。コミットのたびに、Claude Code がそのブランチへ push する。周の終わりに PR を作る。合流は、えだが差分を読んで頼む。
 - 検証のコマンドは CLAUDE.md の Workflow。`cornix_web` を変えた項目は、wasm32 向けの clippy と、wasm-pack のビルドも通す。
 - 決まっていない振る舞いに当たったら、推測で埋めずに、質問一覧だけ返して止まる。
 - 依存クレートの版は、crates.io の最新の安定版を選ぶ（2026-10-03 の版は research 5.1節）。
@@ -15,19 +15,21 @@
 
 ブランチ: `stage1-keytest`
 
-- [ ] workspace の骨組みと、計測ページ（keytest）を作り、①の自動の部分を満たす（B-46〜B-52）
+- [x] workspace の骨組みと、計測ページ（keytest）を作り、①の自動の部分を満たす（B-46〜B-52）
   - メモ: ルートの `Cargo.toml` は `[workspace]` だけ（`members = ["cornix_logic", "cornix_web"]`、`resolver = "3"`）。edition は 2024。`cornix_logic` は lib で、まだ中身は空でよい（`//!` の説明だけ。serde_json は、まだ入れない）。`cornix_web` は `crate-type = ["cdylib", "rlib"]` で、`cornix_logic` に依存する。wasm-bindgen・web-sys・js-sys は `[target.'cfg(target_arch = "wasm32")'.dependencies]` に入れる（research 5.1節の、試した形）。まとめの表を作る部分（イベントの並び → 行の並びと、直近の20件）は、web-sys を使わないモジュールに分けて、`cargo test` で確かめる。DOM とイベントの配線は `#[cfg(target_arch = "wasm32")]` のモジュールに置き、`#[wasm_bindgen] pub fn run_keytest()` を出す。`static/keytest.html` は手書きで、`./pkg/cornix_web.js` を読み込んで `run_keytest()` を呼ぶ（`index.html` は、まだ作らない）。全画面と Keyboard Lock の呼び方は、web-sys に型が無ければ `js_sys::Reflect` で呼ぶ。通った方法を、design 6節の M-8 に書き戻す。`.gitignore` に `/static/pkg/` を足す
   - 足してよい依存: wasm-bindgen・web-sys・js-sys（`cornix_web`。target が wasm32 のときだけ）
   - 完了条件: Workflow のコマンド（wasm32 向けの clippy と、wasm-pack のビルドを含む）が全部通り、`static/pkg/` に `cornix_web.js` と `cornix_web_bg.wasm` が出る。ブラウザで開いて確かめるのは、次の【えだ】
-- [ ] 【えだ】計測ページで、手元のキーの届き方を測る（①の実測。`docs/measurements.md` の①〜④）
+- [x] 計測ページの Markdown を、`docs/measurements.md` ①の枠と同じ8列にする（B-52）
+- [x] 文書を「keyhac を止めて使う」の決定に合わせる
+- [x] 計測ページで、navigator.keyboard が null のブラウザ（Brave）でも B-50 の表示が出て、全画面を抜けたときにボタンの文が戻るようにする
+- [x] 【えだ】計測ページで、手元のキーの届き方を測る（①の実測。`docs/measurements.md` の①〜④）
   - メモ: 手順。
     1. `wasm-pack build cornix_web --target web --out-dir ../static/pkg --no-typescript`
     2. `python -m http.server 8000 --directory static` を動かしたまま、Chrome で `http://localhost:8000/keytest.html` を開く
-    3. keyhac を動かしたまま、`docs/measurements.md` の①の「押すキー」を、上から順に、1つずつ押して離す。ページの下に出る Markdown の表を、①の「keyhac を動かしたまま」に貼る
-    4. 「記録を消す」を押し、keyhac を止めて、3 と同じことをする。「keyhac を止めたとき」に貼る
-    5. ②（止められるか）・③（全画面）・④（JIS の文字）を、表のとおりに試して、書く。ふだん使う状態（keyhac を動かしたまま）で測り、止めたときと違う所があれば、メモに書く。Ctrl+W・Ctrl+T・Ctrl+N は、③の全画面のときだけ押す（ふつうの窓では、タブが閉じたり開いたりする）
-    6. ブラウザの版・IME・キーボードの型番も書く
-- [ ] 【えだ】下段の対応表と、JIS の文字の表を決める（design 3.2節・3.4節。design 6節の M-1〜M-7）
+    3. keyhac を止めて、`docs/measurements.md` の①の「押すキー」を、上から順に、1つずつ押して離す。ページの下に出る Markdown の表を、①の「keyhac を止めたとき」に貼る
+    4. ②（止められるか）・③（全画面）・④（JIS の文字）を、表のとおりに試して、書く。keyhac を止めて測る。Ctrl+W・Ctrl+T・Ctrl+N は、③の全画面のときだけ押す（ふつうの窓では、タブが閉じたり開いたりする）
+    5. ブラウザの版・IME・キーボードの型番も書く
+- [x] 【えだ】下段の対応表と、JIS の文字の表を決める（design 3.2節・3.4節。design 6節の M-1〜M-7）
   - メモ: Claude Code に「`docs/measurements.md` の①〜④を読んで、design 3.4節の決め方で、下段の対応表の案を出して」と頼む。えだが選んだら、Claude Code が次を行う（文書だけを変える。コミットは1つ）。(a) design 3.4節に、下段の表を足す。上の3段で、届き方が怪しかったキーは外す (b) design 3.2節の JIS の列を、④の実測に合わせる (c) B-43 の注意の文を、②③の実測に合わせる (d) design 6節の M-1〜M-7 を、分かったことで書き直す (e) 見本（design 3.5節）の MO(1)・MO(2)・Space・Enter・Bksp の位置に、手元のキーが当たらないときは、見本と対応表のどちらを直すかを、えだに聞く
 - [ ] 【えだ】PR の差分を読んで、合流を頼む
 
