@@ -19,7 +19,7 @@ pub const COLS: usize = 7;
 /// 列6にあるのは、丸い部品の (2,6) と (5,6) だけ。
 #[must_use]
 pub const fn has_key(row: usize, col: usize) -> bool {
-    row < ROWS && (col < 6 || (col == 6 && (row == 2 || row == 5)))
+    row < ROWS && (col < 6 || is_knob(row, col))
 }
 
 /// 丸い部品の位置（(2,6) と (5,6)）か。
