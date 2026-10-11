@@ -7,6 +7,8 @@
 pub mod chars;
 pub mod engine;
 #[cfg(test)]
+mod engine_repeat_tests;
+#[cfg(test)]
 mod engine_tests;
 pub mod keycode;
 pub mod sample;

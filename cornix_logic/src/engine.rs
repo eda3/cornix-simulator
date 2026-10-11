@@ -158,6 +158,10 @@ impl Engine {
         if !has_key(row, col) || is_knob(row, col) {
             return None;
         }
+        // 押されている位置を、もう一度押した扱いにはしない（B-22）
+        if self.held(row, col).is_some() {
+            return None;
+        }
         let decided = self.resolve(row, col);
         let (action, last_key) = self.apply(decided.keycode(), layout);
         self.held.push(((row, col), decided.clone()));
@@ -183,6 +187,38 @@ impl Engine {
             Some(Keycode::Modifier(modifier)) => self.modifiers[index_of(*modifier)] = false,
             _ => {}
         }
+    }
+
+    /// 押し続け（repeat の付いた keydown）。欄への動きだけを返す（B-23）。
+    ///
+    /// レイヤーと修飾キーの状態は変えない。その位置が、押したときに「欄を変える」キーコード
+    /// （文字のキー・Shift 付き・欄を変えるキー）に決まっていたら、いまの修飾キーの状態で、
+    /// 欄への動きをもう一度する。押されていない位置は、無視する。
+    #[must_use]
+    pub fn repeat(&self, row: usize, col: usize, layout: Layout) -> FieldAction {
+        match self.held(row, col).and_then(Decided::keycode) {
+            Some(Keycode::Char(key)) => self.type_base(BaseKey::Char(*key), false, layout).0,
+            Some(Keycode::Edit(key)) => self.type_base(BaseKey::Edit(*key), false, layout).0,
+            Some(Keycode::Shifted { base, .. }) => self.type_base(*base, true, layout).0,
+            _ => FieldAction::None,
+        }
+    }
+
+    /// 押されているキーを、全部離した扱いにする（B-24）。
+    ///
+    /// 有効なレイヤーはレイヤー0だけに、修飾キーは全部切れた状態に戻る。
+    pub fn release_all(&mut self) {
+        self.held.clear();
+        self.modifiers = [false; 8];
+        for (layer, state) in self.layers.iter_mut().enumerate() {
+            *state = layer == 0;
+        }
+    }
+
+    /// 押されている位置（押した順）。
+    #[must_use]
+    pub fn held_positions(&self) -> Vec<(usize, usize)> {
+        self.held.iter().map(|(position, _)| *position).collect()
     }
 
     /// 決まったキーコードを、状態に当てる。欄への動きと「直前のキー」を返す。
