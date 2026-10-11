@@ -17,6 +17,9 @@ pub mod sample;
 #[cfg(test)]
 mod testkit;
 pub mod text;
+pub mod view;
+#[cfg(test)]
+mod view_tests;
 pub mod vil;
 #[cfg(test)]
 mod vil_tests;
