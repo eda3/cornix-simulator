@@ -5,6 +5,9 @@
 //! 振る舞いの正は `docs/design.md`。中身は、`docs/todo.md` の2周目で足す。
 
 pub mod chars;
+pub mod engine;
+#[cfg(test)]
+mod engine_tests;
 pub mod keycode;
 pub mod sample;
 #[cfg(test)]
