@@ -196,13 +196,12 @@ impl App {
         let layers = (0..self.state.borrow().engine.keymap().layer_count()).map(Shown::Layer);
         let mut choices = Vec::new();
         for choice in std::iter::once(Shown::Auto).chain(layers) {
-            let (label, value) = match choice {
-                Shown::Auto => ("自動".to_owned(), "auto".to_owned()),
-                Shown::Layer(layer) => (layer.to_string(), layer.to_string()),
+            let label = match choice {
+                Shown::Auto => "自動".to_owned(),
+                Shown::Layer(layer) => layer.to_string(),
             };
             let button = self.document.create_element("button")?;
             button.set_attribute("type", "button")?;
-            button.set_attribute("data-layer", &value)?;
             button.set_text_content(Some(&label));
             self.layer_buttons.append_child(&button)?;
             choices.push((choice, button));
@@ -421,11 +420,17 @@ fn listen_switches(app: &Rc<App>) -> Result<(), JsValue> {
         else {
             return Ok(());
         };
-        let Some(value) = button.get_attribute("data-layer") else {
+        // 押されたボタンが選ぶ物。ボタンでない所（置く所のすき間）を押したときは、何もしない
+        let choice = shared
+            .layer_choices
+            .borrow()
+            .iter()
+            .find(|(_, candidate)| candidate.is_same_node(Some(&button)))
+            .map(|(choice, _)| *choice);
+        let Some(choice) = choice else {
             return Ok(());
         };
-        // 番号でない物（"auto"）は、「自動」
-        shared.state.borrow_mut().shown = value.parse().map_or(Shown::Auto, Shown::Layer);
+        shared.state.borrow_mut().shown = choice;
         shared.refresh()?;
         button.blur()
     })
