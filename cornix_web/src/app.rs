@@ -1,7 +1,7 @@
 //! シミュレータ本体（`static/index.html`）の、DOM との受け渡し。wasm32 のときだけ。
 //!
 //! 図に出す中身を決める判断は `cornix_logic` に置き、ここは、それを描くだけにする。
-//! 振る舞いは `docs/design.md` の B-01〜B-08・B-11〜B-14・B-17・B-19〜B-41。
+//! 振る舞いは `docs/design.md` の B-01〜B-08・B-11〜B-41。
 
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -30,6 +30,12 @@ const LEGEND_WIDTH: f64 = 50.0;
 /// 打った結果として持つ物。判断は `cornix_logic` の部品がして、ここは、持って渡すだけ。
 struct State {
     engine: Engine,
+    /// 配列（JIS・US）。
+    layout: Layout,
+    /// 表示するレイヤー（「自動」か番号）。
+    shown: Shown,
+    /// 手元のキーの名前を出すか。
+    host_labels: bool,
     /// 出た文字の欄。
     field: TextField,
     /// 「直前のキー」の文。
@@ -53,6 +59,12 @@ struct App {
     vil_file: HtmlInputElement,
     /// 選んだファイルを、文字列として読む物。
     reader: FileReader,
+    /// 配列の選択（JIS・US の順）。
+    layouts: [HtmlInputElement; 2],
+    /// 「手元のキーの名前」のチェック。
+    host_labels: HtmlInputElement,
+    /// レイヤーの列の、「自動」と番号のボタンを置く所。
+    layer_buttons: Element,
     /// 配列の図（SVG）。
     figure: Element,
     /// 有効なレイヤーの番号を出す所。
@@ -81,6 +93,12 @@ impl App {
             choose_vil: element(&document, "choose-vil")?,
             vil_file: element(&document, "vil-file")?,
             reader: FileReader::new()?,
+            layouts: [
+                element(&document, "layout-jis")?,
+                element(&document, "layout-us")?,
+            ],
+            host_labels: element(&document, "host-labels")?,
+            layer_buttons: element(&document, "layer-buttons")?,
             figure: element(&document, "figure")?,
             active_layers: element(&document, "active-layers")?,
             badges: [
@@ -96,6 +114,9 @@ impl App {
             document,
             state: RefCell::new(State {
                 engine: Engine::new(keymap),
+                layout: Layout::Jis,
+                shown: Shown::Auto,
+                host_labels: true,
                 field: TextField::default(),
                 last_key: String::new(),
                 file_name: String::new(),
@@ -105,8 +126,9 @@ impl App {
 
     /// 選んだ .vil の中身（文字列）を読む。
     ///
-    /// 読めたら、案内と知らせを変え、キーの状態を、何も押していない状態に戻す。欄と「直前のキー」は
-    /// 変えない（B-06・B-07）。読めないときは、理由を出すだけで、図と状態は前のまま（B-08）。
+    /// 読めたら、案内と知らせを変え、キーの状態を、何も押していない状態に、表示するレイヤーを
+    /// 「自動」に戻す。欄・「直前のキー」・配列の選択は変えない（B-06・B-07）。
+    /// 読めないときは、理由を出すだけで、図と状態は前のまま（B-08）。
     fn load(&self, name: &str, text: &str) -> Result<(), JsValue> {
         match parse(text) {
             Ok(keymap) => {
@@ -118,7 +140,9 @@ impl App {
                 self.notice
                     .set_text_content(keymap.notices().message().as_deref());
                 self.load_error.set_text_content(None);
-                self.state.borrow_mut().engine = Engine::new(keymap);
+                let mut state = self.state.borrow_mut();
+                state.engine = Engine::new(keymap);
+                state.shown = Shown::Auto;
             }
             Err(error) => {
                 let reason = format!("読めませんでした: {error}");
@@ -128,12 +152,29 @@ impl App {
         self.refresh()
     }
 
-    /// 図・有効なレイヤー・修飾キーの札・「直前のキー」・欄を、いまの状態のとおりに書き直す。
+    /// 図・レイヤーの列・修飾キーの札・「直前のキー」・欄を、いまの状態のとおりに書き直す。
     fn refresh(&self) -> Result<(), JsValue> {
         let state = self.state.borrow();
         let engine = &state.engine;
-        let view = render(engine, Layout::Jis, Shown::Auto, true);
+        let view = render(engine, state.layout, state.shown, state.host_labels);
         draw(&self.document, &self.figure, &view)?;
+        // レイヤーの列は、「自動」と、読み込んだキーマップのレイヤーの番号（B-18）
+        self.layer_buttons.set_text_content(None);
+        let layers = (0..engine.keymap().layer_count()).map(Shown::Layer);
+        for choice in std::iter::once(Shown::Auto).chain(layers) {
+            let (label, value) = match choice {
+                Shown::Auto => ("自動".to_owned(), "auto".to_owned()),
+                Shown::Layer(layer) => (layer.to_string(), layer.to_string()),
+            };
+            let button = self.document.create_element("button")?;
+            button.set_attribute("type", "button")?;
+            button.set_attribute("data-layer", &value)?;
+            if choice == state.shown {
+                button.set_attribute("class", "on")?;
+            }
+            button.set_text_content(Some(&label));
+            self.layer_buttons.append_child(&button)?;
+        }
         // 「有効なレイヤー: 0・1」の形（B-19）
         let layers: Vec<String> = view.active_layers.iter().map(ToString::to_string).collect();
         self.active_layers
@@ -183,12 +224,13 @@ pub fn run_simulator() -> Result<(), JsValue> {
             event.prevent_default();
             {
                 let mut state = shared.state.borrow_mut();
+                let layout = state.layout;
                 if !down {
                     state.engine.release(row, col);
                 } else if event.repeat() {
-                    let action = state.engine.repeat(row, col, Layout::Jis);
+                    let action = state.engine.repeat(row, col, layout);
                     state.field.apply(action);
-                } else if let Some(outcome) = state.engine.press(row, col, Layout::Jis) {
+                } else if let Some(outcome) = state.engine.press(row, col, layout) {
                     state.field.apply(outcome.action);
                     state.last_key = outcome.last_key;
                 }
@@ -230,6 +272,39 @@ pub fn run_simulator() -> Result<(), JsValue> {
         let text = shared.reader.result()?.as_string().unwrap_or_default();
         let name = shared.state.borrow().file_name.clone();
         shared.load(&name, &text)
+    })?;
+
+    // 配列の切り替え。刻印と、そのあとに出る文字が変わる。欄とキーの状態は変えない（B-36）
+    for (index, layout) in [Layout::Jis, Layout::Us].into_iter().enumerate() {
+        let shared = Rc::clone(&app);
+        listen(&app.layouts[index], "change", move |_: Event| {
+            shared.state.borrow_mut().layout = layout;
+            shared.refresh()?;
+            shared.layouts[index].blur()
+        })?;
+    }
+
+    // 「手元のキーの名前」のチェック（B-16）
+    let shared = Rc::clone(&app);
+    listen(&app.host_labels, "change", move |_: Event| {
+        shared.state.borrow_mut().host_labels = shared.host_labels.checked();
+        shared.refresh()?;
+        shared.host_labels.blur()
+    })?;
+
+    // レイヤーの列のボタン（B-18）。ボタンは描き直すたびに作り直すので、置く所でまとめて受ける
+    let shared = Rc::clone(&app);
+    listen(&app.layer_buttons, "click", move |event: Event| {
+        let Some(value) = event
+            .target()
+            .and_then(|target| target.dyn_into::<Element>().ok())
+            .and_then(|button| button.get_attribute("data-layer"))
+        else {
+            return Ok(());
+        };
+        // 番号でない物（"auto"）は、「自動」
+        shared.state.borrow_mut().shown = value.parse().map_or(Shown::Auto, Shown::Layer);
+        shared.refresh()
     })?;
 
     // ボタンを押したあとは、フォーカスを外す（手元の Space や Enter で、また押されないように）
