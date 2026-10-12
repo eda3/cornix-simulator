@@ -77,7 +77,7 @@
   - メモ: ファイルは、文字列として読む（FileReader の readAsText）。JavaScript の側で JSON にしない。読めたときの案内と知らせ、読めないときの理由を出す
 - [x] 切り替えを付ける（B-15・B-16・B-18・B-36）
   - メモ: 配列（JIS・US）、「手元のキーの名前」のチェック、レイヤーの列（「自動」と番号）
-- [ ] 全画面と、注意の文を付ける（B-42〜B-45）
+- [x] 全画面と、注意の文を付ける（B-42〜B-45）
   - メモ: 1周目の計測ページで通った方法（design 6節の M-8）で、全画面と Keyboard Lock を呼ぶ。全画面を抜けたとき（fullscreenchange）に、Keyboard Lock を外して、全部離す
   - 足してよい依存: wasm-bindgen-futures（Keyboard Lock の結果を待つのに要るときだけ。要らなければ足さない）
 - [ ] 点検: test-reviewer に点検させ、指摘を壊し方で確かめて直す（最大2回）

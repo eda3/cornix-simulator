@@ -1,11 +1,12 @@
 //! シミュレータ本体（`static/index.html`）の、DOM との受け渡し。wasm32 のときだけ。
 //!
 //! 図に出す中身を決める判断は `cornix_logic` に置き、ここは、それを描くだけにする。
-//! 振る舞いは `docs/design.md` の B-01〜B-08・B-11〜B-41。
+//! 振る舞いは `docs/design.md` の B-01〜B-08・B-11〜B-45。
 
 use std::cell::RefCell;
 use std::rc::Rc;
 
+use cornix_logic::caution;
 use cornix_logic::chars::Layout;
 use cornix_logic::engine::Engine;
 use cornix_logic::geometry::{KeyShape, SHAPES};
@@ -14,10 +15,13 @@ use cornix_logic::sample::SAMPLE_VIL;
 use cornix_logic::text::TextField;
 use cornix_logic::view::{Cell, Shown, Tone, View, render};
 use cornix_logic::vil::parse;
+use js_sys::Promise;
 use wasm_bindgen::prelude::*;
-use web_sys::{Document, Element, Event, FileReader, HtmlElement, HtmlInputElement, KeyboardEvent};
+use web_sys::{
+    Document, Element, Event, FileReader, HtmlElement, HtmlInputElement, KeyboardEvent, Window,
+};
 
-use crate::dom::listen;
+use crate::dom::{call, keyboard, listen};
 
 const SVG_NS: &str = "http://www.w3.org/2000/svg";
 /// キー1つ分の間隔（図の中の長さ）。
@@ -36,6 +40,8 @@ struct State {
     shown: Shown,
     /// 手元のキーの名前を出すか。
     host_labels: bool,
+    /// Keyboard Lock が掛かっているか（全画面の間だけ `true` になる）。
+    keyboard_locked: bool,
     /// 出た文字の欄。
     field: TextField,
     /// 「直前のキー」の文。
@@ -46,7 +52,14 @@ struct State {
 
 /// ページの中の、読み書きする部品と、いまの状態。
 struct App {
+    window: Window,
     document: Document,
+    /// 全画面にする要素（ページの全体）。
+    root: Element,
+    /// 「全画面で試す」のボタン。
+    fullscreen: HtmlElement,
+    /// 注意の文を出す所。
+    caution: Element,
     /// 案内のうち、いま出ているキーマップの文。
     guide: Element,
     /// 案内のうち、知らせ（動かない物の数）。
@@ -84,9 +97,18 @@ struct App {
 
 impl App {
     /// `index.html` の中から部品を探し、見本のキーマップで、何も押していない状態を作る。
-    fn find(document: Document) -> Result<Self, JsValue> {
+    fn find(window: Window) -> Result<Self, JsValue> {
+        let document = window
+            .document()
+            .ok_or_else(|| JsValue::from_str("document がありません"))?;
+        let root = document
+            .document_element()
+            .ok_or_else(|| JsValue::from_str("ページの全体の要素がありません"))?;
         let keymap = parse(SAMPLE_VIL).map_err(|error| JsValue::from_str(&error.to_string()))?;
         Ok(Self {
+            root,
+            fullscreen: element(&document, "fullscreen")?,
+            caution: element(&document, "caution")?,
             guide: element(&document, "guide-text")?,
             notice: element(&document, "notice")?,
             load_error: element(&document, "load-error")?,
@@ -111,12 +133,14 @@ impl App {
             field: element(&document, "field")?,
             release_all: element(&document, "release-all")?,
             clear: element(&document, "clear")?,
+            window,
             document,
             state: RefCell::new(State {
                 engine: Engine::new(keymap),
                 layout: Layout::Jis,
                 shown: Shown::Auto,
                 host_labels: true,
+                keyboard_locked: false,
                 field: TextField::default(),
                 last_key: String::new(),
                 file_name: String::new(),
@@ -150,6 +174,25 @@ impl App {
             }
         }
         self.refresh()
+    }
+
+    /// ページが（JavaScript から頼んだ）全画面になっているか。
+    fn is_fullscreen(&self) -> bool {
+        self.document.fullscreen_element().is_some()
+    }
+
+    /// 全画面のボタンの文と、注意の文を、いまの状態のとおりに書き直す（B-42・B-43）。
+    fn show_screen(&self) {
+        let fullscreen = self.is_fullscreen();
+        let label = if fullscreen {
+            "全画面をやめる"
+        } else {
+            "全画面で試す"
+        };
+        self.fullscreen.set_text_content(Some(label));
+        let locked = self.state.borrow().keyboard_locked;
+        self.caution
+            .set_text_content(Some(caution::text(fullscreen, locked)));
     }
 
     /// 図・レイヤーの列・修飾キーの札・「直前のキー」・欄を、いまの状態のとおりに書き直す。
@@ -207,17 +250,41 @@ impl App {
 #[wasm_bindgen]
 pub fn run_simulator() -> Result<(), JsValue> {
     let window = web_sys::window().ok_or_else(|| JsValue::from_str("window がありません"))?;
-    let document = window
-        .document()
-        .ok_or_else(|| JsValue::from_str("document がありません"))?;
-    let app = Rc::new(App::find(document)?);
+    let app = Rc::new(App::find(window)?);
+    app.show_screen();
     app.refresh()?;
+    listen_keys(&app)?;
+    listen_file(&app)?;
+    listen_switches(&app)?;
+    listen_screen(&app)?;
 
+    // ボタンを押したあとは、フォーカスを外す（手元の Space や Enter で、また押されないように）
+    let shared = Rc::clone(&app);
+    listen(&app.release_all, "click", move |_: Event| {
+        shared.release_all()?;
+        shared.release_all.blur()
+    })?;
+
+    // 「全部消す」は、欄と「直前のキー」を空にする。キーの状態は変えない（B-40）
+    let shared = Rc::clone(&app);
+    listen(&app.clear, "click", move |_: Event| {
+        {
+            let mut state = shared.state.borrow_mut();
+            state.field.clear();
+            state.last_key.clear();
+        }
+        shared.refresh()?;
+        shared.clear.blur()
+    })
+}
+
+/// 手元のキーと、全部離すきっかけ（フォーカスを失う・ページが隠れる）を受ける。
+fn listen_keys(app: &Rc<App>) -> Result<(), JsValue> {
     // 手元のキーの keydown・keyup を、対応表の位置の「押す・押し続け・離す」にする（B-20・B-23）。
     // 対応表にあるキーだけ、ブラウザの既定の動きを止める（B-21）
     for (kind, down) in [("keydown", true), ("keyup", false)] {
-        let shared = Rc::clone(&app);
-        listen(&window, kind, move |event: KeyboardEvent| {
+        let shared = Rc::clone(app);
+        listen(&app.window, kind, move |event: KeyboardEvent| {
             let Some((row, col)) = position_of(&event.code()) else {
                 return Ok(());
             };
@@ -240,23 +307,26 @@ pub fn run_simulator() -> Result<(), JsValue> {
     }
 
     // 窓がフォーカスを失ったときと、ページが隠れたときは、全部離す（B-24）
-    let shared = Rc::clone(&app);
-    listen(&window, "blur", move |_: Event| shared.release_all())?;
-    let shared = Rc::clone(&app);
+    let shared = Rc::clone(app);
+    listen(&app.window, "blur", move |_: Event| shared.release_all())?;
+    let shared = Rc::clone(app);
     listen(&app.document, "visibilitychange", move |_: Event| {
         if shared.document.hidden() {
             shared.release_all()?;
         }
         Ok(())
-    })?;
+    })
+}
 
-    // 「.vil を選ぶ」は、ファイルを選ぶ部品を開く。選んだファイルは、文字列として読む（B-05）
-    let shared = Rc::clone(&app);
+/// 「.vil を選ぶ」を受ける（B-05）。
+fn listen_file(app: &Rc<App>) -> Result<(), JsValue> {
+    // ボタンは、ファイルを選ぶ部品を開く。選んだファイルは、文字列として読む
+    let shared = Rc::clone(app);
     listen(&app.choose_vil, "click", move |_: Event| {
         shared.vil_file.click();
         shared.choose_vil.blur()
     })?;
-    let shared = Rc::clone(&app);
+    let shared = Rc::clone(app);
     listen(&app.vil_file, "change", move |_: Event| {
         let Some(file) = shared.vil_file.files().and_then(|files| files.get(0)) else {
             return Ok(());
@@ -267,16 +337,19 @@ pub fn run_simulator() -> Result<(), JsValue> {
         shared.vil_file.set_value("");
         Ok(())
     })?;
-    let shared = Rc::clone(&app);
+    let shared = Rc::clone(app);
     listen(&app.reader, "load", move |_: Event| {
         let text = shared.reader.result()?.as_string().unwrap_or_default();
         let name = shared.state.borrow().file_name.clone();
         shared.load(&name, &text)
-    })?;
+    })
+}
 
+/// 切り替え（配列・手元のキーの名前・レイヤーの列）を受ける。
+fn listen_switches(app: &Rc<App>) -> Result<(), JsValue> {
     // 配列の切り替え。刻印と、そのあとに出る文字が変わる。欄とキーの状態は変えない（B-36）
     for (index, layout) in [Layout::Jis, Layout::Us].into_iter().enumerate() {
-        let shared = Rc::clone(&app);
+        let shared = Rc::clone(app);
         listen(&app.layouts[index], "change", move |_: Event| {
             shared.state.borrow_mut().layout = layout;
             shared.refresh()?;
@@ -285,7 +358,7 @@ pub fn run_simulator() -> Result<(), JsValue> {
     }
 
     // 「手元のキーの名前」のチェック（B-16）
-    let shared = Rc::clone(&app);
+    let shared = Rc::clone(app);
     listen(&app.host_labels, "change", move |_: Event| {
         shared.state.borrow_mut().host_labels = shared.host_labels.checked();
         shared.refresh()?;
@@ -293,7 +366,7 @@ pub fn run_simulator() -> Result<(), JsValue> {
     })?;
 
     // レイヤーの列のボタン（B-18）。ボタンは描き直すたびに作り直すので、置く所でまとめて受ける
-    let shared = Rc::clone(&app);
+    let shared = Rc::clone(app);
     listen(&app.layer_buttons, "click", move |event: Event| {
         let Some(value) = event
             .target()
@@ -305,25 +378,54 @@ pub fn run_simulator() -> Result<(), JsValue> {
         // 番号でない物（"auto"）は、「自動」
         shared.state.borrow_mut().shown = value.parse().map_or(Shown::Auto, Shown::Layer);
         shared.refresh()
-    })?;
+    })
+}
 
-    // ボタンを押したあとは、フォーカスを外す（手元の Space や Enter で、また押されないように）
-    let shared = Rc::clone(&app);
-    listen(&app.release_all, "click", move |_: Event| {
-        shared.release_all()?;
-        shared.release_all.blur()
-    })?;
-
-    // 「全部消す」は、欄と「直前のキー」を空にする。キーの状態は変えない（B-40）
-    let shared = Rc::clone(&app);
-    listen(&app.clear, "click", move |_: Event| {
-        {
-            let mut state = shared.state.borrow_mut();
-            state.field.clear();
-            state.last_key.clear();
+/// 全画面と Keyboard Lock を受ける（B-42〜B-44）。
+fn listen_screen(app: &Rc<App>) -> Result<(), JsValue> {
+    // 「全画面で試す」（B-42）。押すたびに、全画面に入る・抜ける
+    let shared = Rc::clone(app);
+    listen(&app.fullscreen, "click", move |_: Event| {
+        if shared.is_fullscreen() {
+            shared.document.exit_fullscreen();
+        } else {
+            shared.root.request_fullscreen()?;
         }
-        shared.refresh()?;
-        shared.clear.blur()
+        shared.fullscreen.blur()
+    })?;
+
+    // lock() の結果を受ける関数。許可を待つ間に全画面を抜けていたら、掛かっていないので、何もしない。
+    // 断られたときは、掛かっていないままなので、何もしない（注意の文は、掛かっていないときの文のまま）
+    let shared = Rc::clone(app);
+    let on_locked = Closure::<dyn FnMut(JsValue)>::new(move |_: JsValue| {
+        if shared.is_fullscreen() {
+            shared.state.borrow_mut().keyboard_locked = true;
+            shared.show_screen();
+        }
+    });
+    let on_refused = Closure::<dyn FnMut(JsValue)>::new(|_: JsValue| {});
+
+    // 全画面に入ったら Keyboard Lock を掛け、抜けたら外して、全部離す（B-44。どの抜け方でも、ここに来る）。
+    // 呼び方は、計測ページで通った方法（design 6節の M-8）
+    let shared = Rc::clone(app);
+    listen(&app.document, "fullscreenchange", move |_: Event| {
+        let keyboard = keyboard(&shared.window)?;
+        if shared.is_fullscreen() {
+            if let Some(keyboard) = keyboard {
+                let promise: Promise = call(&keyboard, "lock")?.dyn_into()?;
+                // then2 が返す Promise は使わない（結果は、2つの関数が受ける）
+                let _ = promise.then2(&on_locked, &on_refused);
+            }
+            shared.show_screen();
+            Ok(())
+        } else {
+            if let Some(keyboard) = keyboard {
+                call(&keyboard, "unlock")?;
+            }
+            shared.state.borrow_mut().keyboard_locked = false;
+            shared.show_screen();
+            shared.release_all()
+        }
     })
 }
 
