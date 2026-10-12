@@ -125,6 +125,38 @@ pub struct Notices {
     pub macros: usize,
 }
 
+impl Notices {
+    /// 読み込んだときの知らせの文（B-07）。0 個の物は省く。全部 0 なら `None`。
+    ///
+    /// ```rust
+    /// use cornix_logic::vil::Notices;
+    ///
+    /// let notices = Notices {
+    ///     unsupported_keys: 6,
+    ///     ..Notices::default()
+    /// };
+    /// assert_eq!(
+    ///     notices.message().as_deref(),
+    ///     Some("動かない物: 未対応のキー 6 個")
+    /// );
+    /// assert_eq!(Notices::default().message(), None);
+    /// ```
+    #[must_use]
+    pub fn message(&self) -> Option<String> {
+        let parts: Vec<String> = [
+            ("未対応のキー", self.unsupported_keys),
+            ("コンボ", self.combos),
+            ("タップダンス", self.tap_dances),
+            ("マクロ", self.macros),
+        ]
+        .into_iter()
+        .filter(|(_, count)| *count > 0)
+        .map(|(name, count)| format!("{name} {count} 個"))
+        .collect();
+        (!parts.is_empty()).then(|| format!("動かない物: {}", parts.join("、")))
+    }
+}
+
 /// 読み込んだキーマップ（レイヤー × 8 × 7 のキーコードと、知らせの数）。
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Keymap {
@@ -151,6 +183,26 @@ impl Keymap {
     #[must_use]
     pub const fn notices(&self) -> Notices {
         self.notices
+    }
+
+    /// 読めたときの案内の文（B-07）。`file_name` は、選んだファイルの名前。
+    #[must_use]
+    pub fn loaded_message(&self, file_name: &str) -> String {
+        format!(
+            "読み込みました: {file_name}（レイヤー {} 個）",
+            self.layer_count()
+        )
+    }
+}
+
+/// ファイルの読み取り自体が失敗したときの案内の文（B-08）。
+pub const READ_FAILED_MESSAGE: &str = "読めませんでした: ファイルを読めません";
+
+impl VilError {
+    /// 読めないときの案内の文（B-08）。
+    #[must_use]
+    pub fn failed_message(&self) -> String {
+        format!("読めませんでした: {self}")
     }
 }
 

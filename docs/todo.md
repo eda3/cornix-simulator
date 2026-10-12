@@ -69,21 +69,43 @@
 
 この周の実装の項目は、画面の配線だけを作る。見え方（`docs/test-items.md` の⑭〜⑱）は、えだがブラウザで見る項目なので、実装の項目では自動テストを書かない（判断を `cornix_logic` に足したときだけ、そこにテストを足す）。どの項目も、完了条件は「Workflow のコマンド（wasm32 向けの clippy と、wasm-pack のビルドを含む）が全部通る」。見え方の合格は、周の終わりの【えだ】の項目で確かめる。
 
-- [ ] 配列の図を描く（見本のキーマップ。B-01〜B-04・B-11・B-12）
+- [x] 配列の図を描く（見本のキーマップ。B-01〜B-04・B-11・B-12）
   - メモ: `static/index.html` を手書きで作り、`cornix_web::app`（wasm32 のときだけ）が、`view` の返す中身を描く（SVG を勧める）。入口は `run_simulator()`。keytest の入口（`run_keytest()`）は、そのまま残す。ページの中のパスは相対（B-54）。色と大きさは、実装で決めてよい。判断は `cornix_logic` に置く（足りない判断が見つかったら、`cornix_logic` に足して、テストも足す）
-- [ ] 手元のキーで打てるようにする（B-13・B-14・B-17・B-19〜B-41）
+- [x] 手元のキーで打てるようにする（B-13・B-14・B-17・B-19〜B-41）
   - メモ: keydown・keyup と、窓がフォーカスを失ったとき・ページが隠れたときを受ける。対応表にあるキーだけ、preventDefault する。ボタンを押したあとは、フォーカスをボタンから外す。修飾キーの札・「直前のキー」・欄・「全部消す」・「キーを全部離す」・有効なレイヤーの番号も、ここで出す
-- [ ] .vil を選べるようにする（B-05〜B-08）
+- [x] .vil を選べるようにする（B-05〜B-08）
   - メモ: ファイルは、文字列として読む（FileReader の readAsText）。JavaScript の側で JSON にしない。読めたときの案内と知らせ、読めないときの理由を出す
-- [ ] 切り替えを付ける（B-15・B-16・B-18・B-36）
+- [x] 切り替えを付ける（B-15・B-16・B-18・B-36）
   - メモ: 配列（JIS・US）、「手元のキーの名前」のチェック、レイヤーの列（「自動」と番号）
-- [ ] 全画面と、注意の文を付ける（B-42〜B-45）
+- [x] 全画面と、注意の文を付ける（B-42〜B-45）
   - メモ: 1周目の計測ページで通った方法（design 6節の M-8）で、全画面と Keyboard Lock を呼ぶ。全画面を抜けたとき（fullscreenchange）に、Keyboard Lock を外して、全部離す
   - 足してよい依存: wasm-bindgen-futures（Keyboard Lock の結果を待つのに要るときだけ。要らなければ足さない）
-- [ ] 点検: test-reviewer に点検させ、指摘を壊し方で確かめて直す（最大2回）
+- [x] 点検: test-reviewer に点検させ、指摘を壊し方で確かめて直す（最大2回）
   - メモ: この周で `cornix_logic` に足した判断があれば、そこが中心
-- [ ] 【えだ】ブラウザで⑭〜⑱を見て、結果を `docs/measurements.md` の⑤に書く
+- [x] 【えだ】ブラウザで⑭〜⑱を見て、結果を `docs/measurements.md` の⑤に書く
   - メモ: 通らなかった番号と、見えたことを書く。直しは、この下に項目を足す（1件1項目）
+- [x] 直し: .vil を続けて選んでも、名前と中身が食い違わないようにする（B-05・B-07）
+  - メモ: `/code-review` の指摘。読む物（FileReader）を、選ぶたびに作り、ファイル名をその読み取りに持たせる。前の読み取りは、やめる（いちばん後に選んだファイルが出る）
+- [x] 直し: ファイルの読み取り自体が失敗したときに、「読めませんでした: ファイルを読めません」を出す（B-08）
+  - メモ: `/code-review` の指摘。B-08 に1文を足した（えだの決定・2026-10-12）。FileReader の error を受ける
+- [x] 直し: この周で足したテスト4つを、`Result` を返す形にする
+  - メモ: `/code-review` の指摘（CLAUDE.md の Code Style）。`caution.rs` の2つと、`vil_tests.rs` の2つ
+- [x] 直し: .vil を選ぶたびに、結果を受ける関数と読んだ文字列が残らないようにする
+  - メモ: `/code-review` の指摘。関数を、読む物といっしょに持ち、次のファイルを選んだときに捨てる
+- [x] 直し: 開き直したときに、配列の選択と「手元のキーの名前」のチェックを、初期値に戻す（B-04）
+  - メモ: `/code-review` の指摘。ブラウザが前の選択を戻すと、画面と状態が食い違う。起動のときに、部品を JIS・チェック入りに書き直す（えだの決定・2026-10-12）
+- [x] 直し: 全画面を抜けたとき、Keyboard Lock を外すのが失敗しても、画面を戻して全部離す（B-44）
+  - メモ: `/code-review` の指摘。状態を戻すのと全部離すのを、unlock の前に動かす
+- [x] 直し: キーを押し続けている間も、レイヤーの列のボタンを押せるようにする（B-18）
+  - メモ: `/code-review` の指摘。ボタンは .vil を読んだときに作り、描き直しでは、選んでいる印を付け替えるだけにする
+- [x] 直し: レイヤーの列のボタンと、配列の選択を押したあとに、フォーカスを外す（design 4節）
+  - メモ: `/code-review` の指摘。配列の選択は、選んである物を押したとき（change が来ない）にも外す
+- [x] 直し: レイヤーの列のボタンが選ぶ物を、1か所で持つ
+  - メモ: `/code-review` の指摘。ボタンの属性（data-layer）をやめ、押されたボタンを、作ったときの一覧から探す
+- [x] 直し: 全画面に入ったとき、Keyboard Lock を掛けるのが失敗しても、ボタンの文と注意の文を変える（B-42・B-43）
+  - メモ: `/code-review` の指摘。画面の書き直しを、lock の前に動かす
+- [x] 直し: design と、コードの食い違いを直す（3.6節・4節の表・`app.rs` の先頭のコメント）
+  - メモ: `/code-review` の指摘。3.6節に、読み取り自体の失敗の1行を足す。4節の表に `cornix_logic::caution` の行を足す。`app.rs` の先頭の B 番号を、4節の表に合わせる（えだの決定・2026-10-12）
 - [ ] 【えだ】PR の差分を読んで、合流を頼む
 
 ## 4周目: 公開する
@@ -98,9 +120,20 @@
 - [ ] GitHub Actions の workflow を作る（B-53）
   - メモ: `.github/workflows/pages.yml`。main への push と、手動（workflow_dispatch）で動く。流れは、checkout → `rustup target add wasm32-unknown-unknown` → wasm-pack を入れる（公式のリリースの `wasm-pack-v0.15.0-x86_64-unknown-linux-musl.tar.gz` を curl で取って展開する。版は固定）→ `cargo test --workspace` → `wasm-pack build cornix_web --target web --out-dir ../static/pkg --no-typescript` → `actions/configure-pages` → `actions/upload-pages-artifact`（path は `static`）→ `actions/deploy-pages`。使う Action は、公式の actions/* だけ（版は research 5.2節）。権限は `contents: read`・`pages: write`・`id-token: write`。テストが落ちたら、その先へ進まない
   - 完了条件: workflow のファイルがある。実際に通るかは、次の【えだ】
+- [ ] レビュー: /code-review を low → medium → high で掛け、本物だけ直す（1件1コミット）。Claude Code が自分で掛ける。掛けられなければ止まって、えだに頼む
 - [ ] 【えだ】Pages の設定をして、公開する
   - メモ: GitHub の Settings → Pages → Build and deployment の Source を「GitHub Actions」にする。PR の差分を読んで、合流を頼む。Actions の実行が成功するのを見る。失敗したら、ログの先頭20行を `docs/measurements.md` の⑥に貼って、Claude Code に直させる
 - [ ] 【えだ】公開ページで、⑲を確かめる
   - メモ: 結果を `docs/measurements.md` の⑥に書く
 
 最初の版のあとの候補は、design の7節にある（ここには、項目として置かない）。
+
+## ついでの箱（周の外）
+
+周の中では直さないと、えだが決めた物を、1行ずつ置く。`/next-todo` は、ここを進めない。
+
+- 同じ位置に当たる手元のキーが2つ押されているとき、片方を離すと、もう片方を押したままでも、その位置が離れる（`/code-review` の指摘・2026-10-12）。design に足す文を、えだが決めてから直す
+- 全画面を断られたとき、画面に何も出ない（`/code-review` の指摘・2026-10-12）。出す文を、えだが design に決めてから直す
+- 読み終わったあとも、読んだ文字列と、結果を受ける関数が、次のファイルを選ぶまで残る（`/code-review` の指摘・2026-10-12）
+- キーを打つたび（押し続けを含む）に、図の全体を作り直している（`/code-review` の指摘・2026-10-12）
+- `cornix_web::app` と `cornix_web::keytest` で、`element()` と、全画面・Keyboard Lock の配線が重なっている。全画面の出入りの順番の直し（58203d3・9e3550b）は、`app` にだけ入っている（`/code-review` の指摘・2026-10-12）

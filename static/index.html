@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cornix LP シミュレータ</title>
+  <style>
+    body { font-family: sans-serif; margin: 16px; }
+    h1 { margin-bottom: 4px; }
+    #unofficial { margin-top: 0; color: #a00; }
+    #notice:empty, #load-error:empty { display: none; }
+    #load-error { color: #a00; }
+    #controls > * { margin-right: 12px; }
+    #layer-buttons button { margin-right: 4px; }
+    #layer-buttons button.on { background: #ffd54f; }
+    #active-layers { margin-left: 8px; }
+    #figure { display: block; width: 100%; max-width: 1100px; }
+    .key rect, .key circle { fill: #fff; stroke: #888; }
+    .key.pressed rect { fill: #ffd54f; }
+    .key text { text-anchor: middle; fill: #222; }
+    .key.dim .upper, .key.dim .lower { fill: #aaa; }
+    .key.unsupported .lower { fill: #999; }
+    .key .host { fill: #777; }
+    .badge { display: inline-block; margin-right: 6px; padding: 2px 10px; border: 1px solid #888; border-radius: 4px; color: #999; }
+    .badge.on { background: #ffd54f; color: #222; }
+    #last-key { font-family: monospace; }
+    #field { min-height: 4em; margin: 8px 0; padding: 8px; border: 1px solid #888; font-size: 16px; white-space: pre-wrap; overflow-wrap: anywhere; }
+  </style>
+</head>
+<body>
+  <h1>Cornix LP シミュレータ</h1>
+  <p id="unofficial">非公式（メーカーとは関係のない、個人の制作物）</p>
+  <p id="guide">
+    <span id="guide-text">いま出ているのは、見本のキーマップです。Cornix の初期キーマップ（cornix-default-keymap.vil）は、公式マニュアルの「初期キーマップ」から入手して、「.vil を選ぶ」で読み込めます。</span>
+    <a href="https://docs.channel.io/jezailfunderjp/ja/articles/Cornix-%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83%9E%E3%83%8B%E3%83%A5%E3%82%A2%E3%83%AB-c1160246">公式マニュアル</a>
+  </p>
+  <p id="notice"></p>
+  <p id="load-error"></p>
+
+  <div id="controls">
+    <button id="choose-vil" type="button">.vil を選ぶ</button>
+    <input id="vil-file" type="file" hidden>
+    <span>
+      配列:
+      <label><input id="layout-jis" type="radio" name="layout" checked> JIS</label>
+      <label><input id="layout-us" type="radio" name="layout"> US</label>
+    </span>
+    <label><input id="host-labels" type="checkbox" checked> 手元のキーの名前</label>
+    <button id="fullscreen" type="button">全画面で試す</button>
+    <button id="release-all" type="button">キーを全部離す</button>
+  </div>
+
+  <p id="caution"></p>
+
+  <p id="layers">レイヤー: <span id="layer-buttons"></span> <span id="active-layers"></span></p>
+
+  <svg id="figure" viewBox="-6 -6 882 327" role="img" aria-label="Cornix LP の配列の図"></svg>
+
+  <p id="status">
+    <span id="mod-shift" class="badge">Shift</span>
+    <span id="mod-ctrl" class="badge">Ctrl</span>
+    <span id="mod-alt" class="badge">Alt</span>
+    <span id="mod-gui" class="badge">GUI</span>
+    直前のキー: <span id="last-key"></span>
+  </p>
+
+  <pre id="field"></pre>
+  <button id="clear" type="button">全部消す</button>
+
+  <script type="module">
+    // wasm-pack が static/pkg/ に出す cornix_web を読み込む（pkg/ は git に入れない）
+    import init, { run_simulator } from "./pkg/cornix_web.js";
+    await init();
+    run_simulator();
+  </script>
+</body>
+</html>

@@ -244,3 +244,17 @@ fn item13_switching_the_layout_changes_only_the_legends() -> TestResult {
     assert_eq!(legend(&us, (4, 0))?, ("[", "{", Tone::Normal));
     Ok(())
 }
+
+/// 有効なレイヤーの文（B-19）。期待値は、design の B-19 の形から手で書いた物。
+#[test]
+fn b19_active_layers_text() -> TestResult {
+    let mut engine = sample()?;
+    let text =
+        |engine: &Engine| render(engine, Layout::Jis, Shown::Auto, true).active_layers_text();
+    assert_eq!(text(&engine), "有効なレイヤー: 0");
+    press(&mut engine, (7, 3))?;
+    assert_eq!(text(&engine), "有効なレイヤー: 0・2");
+    press(&mut engine, (3, 3))?;
+    assert_eq!(text(&engine), "有効なレイヤー: 0・1・2");
+    Ok(())
+}

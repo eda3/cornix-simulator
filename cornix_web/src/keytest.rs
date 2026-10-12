@@ -6,13 +6,11 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use js_sys::{Function, Promise, Reflect};
-use wasm_bindgen::convert::FromWasmAbi;
+use js_sys::Promise;
 use wasm_bindgen::prelude::*;
-use web_sys::{
-    Document, Element, Event, EventTarget, HtmlElement, HtmlInputElement, KeyboardEvent, Window,
-};
+use web_sys::{Document, Element, Event, HtmlElement, HtmlInputElement, KeyboardEvent, Window};
 
+use crate::dom::{call, keyboard, listen};
 use crate::keylog::{EventKind, KeyEvent, KeyLog, SummaryRow};
 
 /// 全画面でないときの、ボタンの文。
@@ -103,14 +101,6 @@ impl Page {
         self.document.fullscreen_element().is_some()
     }
 
-    /// `navigator.keyboard`。Keyboard Lock の無いブラウザ（値が undefined か null）では `None`。
-    ///
-    /// web-sys に Keyboard Lock の型が無いので、`js_sys::Reflect` で読む。
-    fn keyboard(&self) -> Result<Option<JsValue>, JsValue> {
-        let keyboard = Reflect::get(&self.window.navigator(), &JsValue::from_str("keyboard"))?;
-        Ok((!keyboard.is_undefined() && !keyboard.is_null()).then_some(keyboard))
-    }
-
     /// 全画面でないときの表示にする。
     fn show_windowed(&self) {
         self.fullscreen.set_text_content(Some(ENTER_LABEL));
@@ -190,7 +180,7 @@ pub fn run_keytest() -> Result<(), JsValue> {
     // 全画面に入ったら Keyboard Lock を掛け、抜けたら外す（Esc の長押しなど、どの抜け方でも、ここに来る）
     let shown = Rc::clone(&page);
     listen(&page.document, "fullscreenchange", move |_: Event| {
-        let keyboard = shown.keyboard()?;
+        let keyboard = keyboard(&shown.window)?;
         if shown.is_fullscreen() {
             shown.fullscreen.set_text_content(Some(EXIT_LABEL));
             if let Some(keyboard) = keyboard {
@@ -216,29 +206,6 @@ fn element<T: JsCast>(document: &Document, id: &str) -> Result<T, JsValue> {
         .get_element_by_id(id)
         .and_then(|element| element.dyn_into().ok())
         .ok_or_else(|| JsValue::from_str(&format!("keytest.html に #{id} がありません")))
-}
-
-/// イベントを受ける関数を登録する。関数は、ページが閉じるまで生かしておく。
-fn listen<E>(
-    target: &EventTarget,
-    kind: &str,
-    handler: impl FnMut(E) -> Result<(), JsValue> + 'static,
-) -> Result<(), JsValue>
-where
-    E: FromWasmAbi + 'static,
-{
-    let closure = Closure::<dyn FnMut(E) -> Result<(), JsValue>>::new(handler);
-    target.add_event_listener_with_callback(kind, closure.as_ref().unchecked_ref())?;
-    closure.forget();
-    Ok(())
-}
-
-/// JavaScript のオブジェクトのメソッドを、引数なしで呼ぶ。
-///
-/// web-sys に型の無い物（`navigator.keyboard` の `lock`・`unlock`）を呼ぶのに使う。
-fn call(target: &JsValue, method: &str) -> Result<JsValue, JsValue> {
-    let function: Function = Reflect::get(target, &JsValue::from_str(method))?.dyn_into()?;
-    function.call0(target)
 }
 
 /// JavaScript の側から届いた、断られた理由を、文字にする。
