@@ -585,7 +585,7 @@ crate は2つ（D-7）。ルートの `Cargo.toml` は `[workspace]` だけに�
 | `cornix_logic::hostmap` | 手元のキーの code（文字列） | 位置（無いこともある）。位置から、手元の刻印も引ける | 3.4節 |
 | `cornix_logic::geometry` | なし | 50の位置の座標・回転と、キーか丸い部品かの別 | 3.3節 |
 | `cornix_logic::view` | `engine` の状態、配列、表示するレイヤー（自動か番号）、手元のキーの名前を出すか | 位置ごとの「図に出す中身」（下の文字・上の文字・濃さ（ふつう・薄い・未対応・空）・押されているか・手元の刻印）と、有効なレイヤーの番号 | B-12〜B-19 |
-| `cornix_logic::caution` | 全画面か・Keyboard Lock が掛かっているか | 注意の文 | B-43 |
+| `cornix_logic::caution` | 全画面か・Keyboard Lock が掛かっているか | 注意の文と、全画面のボタンの文 | B-42・B-43 |
 | `cornix_web::app`（wasm32 のときだけ） | ブラウザの出来事（keydown・keyup・blur・ファイルの選択・ボタン） | DOM の書き換え | B-01〜B-08・B-11・B-17・B-20・B-21・B-24・B-42〜B-45 |
 | `cornix_web::keytest`（wasm32 のときだけ） | ブラウザの keydown・keyup | 計測ページの表。表を作る部分（イベントの並び → 行の並び）は、web-sys を使わない関数に分けて、`cargo test` で確かめる | B-46〜B-52 |
 
