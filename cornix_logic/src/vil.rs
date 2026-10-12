@@ -195,6 +195,9 @@ impl Keymap {
     }
 }
 
+/// ファイルの読み取り自体が失敗したときの案内の文（B-08）。
+pub const READ_FAILED_MESSAGE: &str = "読めませんでした: ファイルを読めません";
+
 impl VilError {
     /// 読めないときの案内の文（B-08）。
     #[must_use]

@@ -454,3 +454,12 @@ fn b07_b08_guide_messages() -> Result<(), VilError> {
     );
     Ok(())
 }
+
+/// ファイルの読み取り自体が失敗したときの文（B-08）。期待値は、design から手で写した物。
+#[test]
+fn b08_read_failed_message() {
+    assert_eq!(
+        crate::vil::READ_FAILED_MESSAGE,
+        "読めませんでした: ファイルを読めません"
+    );
+}

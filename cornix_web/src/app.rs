@@ -14,7 +14,7 @@ use cornix_logic::hostmap::position_of;
 use cornix_logic::sample::SAMPLE_VIL;
 use cornix_logic::text::TextField;
 use cornix_logic::view::{Cell, Shown, Tone, View, render};
-use cornix_logic::vil::parse;
+use cornix_logic::vil::{READ_FAILED_MESSAGE, parse};
 use js_sys::Promise;
 use wasm_bindgen::prelude::*;
 use web_sys::{
@@ -332,6 +332,12 @@ fn listen_file(app: &Rc<App>) -> Result<(), JsValue> {
         listen(&reader, "load", move |_: Event| {
             let text = loaded.result()?.as_string().unwrap_or_default();
             app.load(&name, &text)
+        })?;
+        // 読み取り自体が失敗したら、理由を出すだけで、図と状態は前のまま（B-08）
+        let app = Rc::clone(&shared);
+        listen(&reader, "error", move |_: Event| {
+            app.load_error.set_text_content(Some(READ_FAILED_MESSAGE));
+            Ok(())
         })?;
         reader.read_as_text(&file)?;
         // 同じファイルを選び直しても、change が届くようにする
