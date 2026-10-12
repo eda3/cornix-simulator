@@ -251,6 +251,9 @@ impl App {
 pub fn run_simulator() -> Result<(), JsValue> {
     let window = web_sys::window().ok_or_else(|| JsValue::from_str("window がありません"))?;
     let app = Rc::new(App::find(window)?);
+    // 開き直したときに、ブラウザが前の選択を戻していても、初期値にする（B-04）
+    app.layouts[0].set_checked(true);
+    app.host_labels.set_checked(true);
     app.show_screen();
     app.refresh()?;
     listen_keys(&app)?;
