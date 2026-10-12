@@ -466,12 +466,13 @@ fn listen_screen(app: &Rc<App>) -> Result<(), JsValue> {
     listen(&app.document, "fullscreenchange", move |_: Event| {
         let keyboard = keyboard(&shared.window)?;
         if shared.is_fullscreen() {
+            // 画面を書き直すのを先にする（lock が失敗しても、ボタンの文と注意の文は変わるように）
+            shared.show_screen();
             if let Some(keyboard) = keyboard {
                 let promise: Promise = call(&keyboard, "lock")?.dyn_into()?;
                 // then2 が返す Promise は使わない（結果は、2つの関数が受ける）
                 let _ = promise.then2(&on_locked, &on_refused);
             }
-            shared.show_screen();
         } else {
             // 画面を戻して全部離すのを先にする（unlock が失敗しても、ここまでは済むように）
             shared.state.borrow_mut().keyboard_locked = false;
