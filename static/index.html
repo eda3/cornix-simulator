@@ -15,6 +15,10 @@
     .key.dim .upper, .key.dim .lower { fill: #aaa; }
     .key.unsupported .lower { fill: #999; }
     .key .host { fill: #777; }
+    .badge { display: inline-block; margin-right: 6px; padding: 2px 10px; border: 1px solid #888; border-radius: 4px; color: #999; }
+    .badge.on { background: #ffd54f; color: #222; }
+    #last-key { font-family: monospace; }
+    #field { min-height: 4em; margin: 8px 0; padding: 8px; border: 1px solid #888; font-size: 16px; white-space: pre-wrap; overflow-wrap: anywhere; }
   </style>
 </head>
 <body>
@@ -25,7 +29,24 @@
     <a href="https://docs.channel.io/jezailfunderjp/ja/articles/Cornix-%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83%9E%E3%83%8B%E3%83%A5%E3%82%A2%E3%83%AB-c1160246">公式マニュアル</a>
   </p>
 
+  <div id="controls">
+    <button id="release-all" type="button">キーを全部離す</button>
+  </div>
+
+  <p id="layers"><span id="active-layers"></span></p>
+
   <svg id="figure" viewBox="-6 -6 882 327" role="img" aria-label="Cornix LP の配列の図"></svg>
+
+  <p id="status">
+    <span id="mod-shift" class="badge">Shift</span>
+    <span id="mod-ctrl" class="badge">Ctrl</span>
+    <span id="mod-alt" class="badge">Alt</span>
+    <span id="mod-gui" class="badge">GUI</span>
+    直前のキー: <span id="last-key"></span>
+  </p>
+
+  <pre id="field"></pre>
+  <button id="clear" type="button">全部消す</button>
 
   <script type="module">
     // wasm-pack が static/pkg/ に出す cornix_web を読み込む（pkg/ は git に入れない）

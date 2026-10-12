@@ -7,12 +7,10 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 use js_sys::{Function, Promise, Reflect};
-use wasm_bindgen::convert::FromWasmAbi;
 use wasm_bindgen::prelude::*;
-use web_sys::{
-    Document, Element, Event, EventTarget, HtmlElement, HtmlInputElement, KeyboardEvent, Window,
-};
+use web_sys::{Document, Element, Event, HtmlElement, HtmlInputElement, KeyboardEvent, Window};
 
+use crate::dom::listen;
 use crate::keylog::{EventKind, KeyEvent, KeyLog, SummaryRow};
 
 /// 全画面でないときの、ボタンの文。
@@ -216,21 +214,6 @@ fn element<T: JsCast>(document: &Document, id: &str) -> Result<T, JsValue> {
         .get_element_by_id(id)
         .and_then(|element| element.dyn_into().ok())
         .ok_or_else(|| JsValue::from_str(&format!("keytest.html に #{id} がありません")))
-}
-
-/// イベントを受ける関数を登録する。関数は、ページが閉じるまで生かしておく。
-fn listen<E>(
-    target: &EventTarget,
-    kind: &str,
-    handler: impl FnMut(E) -> Result<(), JsValue> + 'static,
-) -> Result<(), JsValue>
-where
-    E: FromWasmAbi + 'static,
-{
-    let closure = Closure::<dyn FnMut(E) -> Result<(), JsValue>>::new(handler);
-    target.add_event_listener_with_callback(kind, closure.as_ref().unchecked_ref())?;
-    closure.forget();
-    Ok(())
 }
 
 /// JavaScript のオブジェクトのメソッドを、引数なしで呼ぶ。

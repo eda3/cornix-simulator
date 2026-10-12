@@ -6,6 +6,8 @@
 
 #[cfg(target_arch = "wasm32")]
 pub mod app;
+#[cfg(target_arch = "wasm32")]
+mod dom;
 pub mod keylog;
 #[cfg(target_arch = "wasm32")]
 pub mod keytest;

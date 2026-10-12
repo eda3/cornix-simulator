@@ -1,16 +1,23 @@
 //! シミュレータ本体（`static/index.html`）の、DOM との受け渡し。wasm32 のときだけ。
 //!
 //! 図に出す中身を決める判断は `cornix_logic` に置き、ここは、それを描くだけにする。
-//! 振る舞いは `docs/design.md` の B-01〜B-04・B-11・B-12。
+//! 振る舞いは `docs/design.md` の B-01〜B-04・B-11〜B-14・B-17・B-19〜B-41。
+
+use std::cell::RefCell;
+use std::rc::Rc;
 
 use cornix_logic::chars::Layout;
 use cornix_logic::engine::Engine;
 use cornix_logic::geometry::{KeyShape, SHAPES};
+use cornix_logic::hostmap::position_of;
 use cornix_logic::sample::SAMPLE_VIL;
+use cornix_logic::text::TextField;
 use cornix_logic::view::{Cell, Shown, Tone, View, render};
 use cornix_logic::vil::parse;
 use wasm_bindgen::prelude::*;
-use web_sys::{Document, Element};
+use web_sys::{Document, Element, Event, HtmlElement, KeyboardEvent};
+
+use crate::dom::listen;
 
 const SVG_NS: &str = "http://www.w3.org/2000/svg";
 /// キー1つ分の間隔（図の中の長さ）。
@@ -20,28 +27,167 @@ const SIDE: f64 = 56.0;
 /// 刻印に使える幅。これより長い刻印は、幅に合わせて詰める。
 const LEGEND_WIDTH: f64 = 50.0;
 
+/// 打った結果として持つ物。判断は `cornix_logic` の部品がして、ここは、持って渡すだけ。
+struct State {
+    engine: Engine,
+    /// 出た文字の欄。
+    field: TextField,
+    /// 「直前のキー」の文。
+    last_key: String,
+}
+
+/// ページの中の、読み書きする部品と、いまの状態。
+struct App {
+    document: Document,
+    /// 配列の図（SVG）。
+    figure: Element,
+    /// 有効なレイヤーの番号を出す所。
+    active_layers: Element,
+    /// 修飾キーの札（Shift・Ctrl・Alt・GUI の順）。
+    badges: [Element; 4],
+    /// 「直前のキー」を出す所。
+    last_key: Element,
+    /// 欄。
+    field: Element,
+    /// 「キーを全部離す」のボタン。
+    release_all: HtmlElement,
+    /// 「全部消す」のボタン。
+    clear: HtmlElement,
+    state: RefCell<State>,
+}
+
+impl App {
+    /// `index.html` の中から部品を探し、見本のキーマップで、何も押していない状態を作る。
+    fn find(document: Document) -> Result<Self, JsValue> {
+        let keymap = parse(SAMPLE_VIL).map_err(|error| JsValue::from_str(&error.to_string()))?;
+        Ok(Self {
+            figure: element(&document, "figure")?,
+            active_layers: element(&document, "active-layers")?,
+            badges: [
+                element(&document, "mod-shift")?,
+                element(&document, "mod-ctrl")?,
+                element(&document, "mod-alt")?,
+                element(&document, "mod-gui")?,
+            ],
+            last_key: element(&document, "last-key")?,
+            field: element(&document, "field")?,
+            release_all: element(&document, "release-all")?,
+            clear: element(&document, "clear")?,
+            document,
+            state: RefCell::new(State {
+                engine: Engine::new(keymap),
+                field: TextField::default(),
+                last_key: String::new(),
+            }),
+        })
+    }
+
+    /// 図・有効なレイヤー・修飾キーの札・「直前のキー」・欄を、いまの状態のとおりに書き直す。
+    fn refresh(&self) -> Result<(), JsValue> {
+        let state = self.state.borrow();
+        let engine = &state.engine;
+        let view = render(engine, Layout::Jis, Shown::Auto, true);
+        draw(&self.document, &self.figure, &view)?;
+        // 「有効なレイヤー: 0・1」の形（B-19）
+        let layers: Vec<String> = view.active_layers.iter().map(ToString::to_string).collect();
+        self.active_layers
+            .set_text_content(Some(&format!("有効なレイヤー: {}", layers.join("・"))));
+        // 札は、左右のどちらかが入っていれば点く（B-32）
+        let modifiers = [engine.shift(), engine.ctrl(), engine.alt(), engine.gui()];
+        for (badge, on) in self.badges.iter().zip(modifiers) {
+            badge.set_attribute("class", if on { "badge on" } else { "badge" })?;
+        }
+        self.last_key.set_text_content(Some(&state.last_key));
+        self.field.set_text_content(Some(state.field.text()));
+        Ok(())
+    }
+
+    /// 押されているキーを、全部離した扱いにする（B-24）。
+    fn release_all(&self) -> Result<(), JsValue> {
+        self.state.borrow_mut().engine.release_all();
+        self.refresh()
+    }
+}
+
 /// シミュレータを動かす。`static/index.html` が、読み込みのあとに1回だけ呼ぶ。
 ///
 /// 最初は、見本のキーマップ・JIS・「自動」・手元のキーの名前を出す、で図を描く（B-01・B-04）。
 ///
 /// # Errors
 ///
-/// ページに要る部品（id の付いた要素）が見つからないときと、見本のキーマップが読めないとき。
+/// ページに要る部品（id の付いた要素）が見つからないとき、見本のキーマップが読めないとき、
+/// ブラウザがイベントの登録を断ったとき。
 #[wasm_bindgen]
 pub fn run_simulator() -> Result<(), JsValue> {
-    let document = web_sys::window()
-        .and_then(|window| window.document())
+    let window = web_sys::window().ok_or_else(|| JsValue::from_str("window がありません"))?;
+    let document = window
+        .document()
         .ok_or_else(|| JsValue::from_str("document がありません"))?;
-    let figure = document
-        .get_element_by_id("figure")
-        .ok_or_else(|| JsValue::from_str("index.html に #figure がありません"))?;
-    let keymap = parse(SAMPLE_VIL).map_err(|error| JsValue::from_str(&error.to_string()))?;
-    let engine = Engine::new(keymap);
-    draw(
-        &document,
-        &figure,
-        &render(&engine, Layout::Jis, Shown::Auto, true),
-    )
+    let app = Rc::new(App::find(document)?);
+    app.refresh()?;
+
+    // 手元のキーの keydown・keyup を、対応表の位置の「押す・押し続け・離す」にする（B-20・B-23）。
+    // 対応表にあるキーだけ、ブラウザの既定の動きを止める（B-21）
+    for (kind, down) in [("keydown", true), ("keyup", false)] {
+        let shared = Rc::clone(&app);
+        listen(&window, kind, move |event: KeyboardEvent| {
+            let Some((row, col)) = position_of(&event.code()) else {
+                return Ok(());
+            };
+            event.prevent_default();
+            {
+                let mut state = shared.state.borrow_mut();
+                if !down {
+                    state.engine.release(row, col);
+                } else if event.repeat() {
+                    let action = state.engine.repeat(row, col, Layout::Jis);
+                    state.field.apply(action);
+                } else if let Some(outcome) = state.engine.press(row, col, Layout::Jis) {
+                    state.field.apply(outcome.action);
+                    state.last_key = outcome.last_key;
+                }
+            }
+            shared.refresh()
+        })?;
+    }
+
+    // 窓がフォーカスを失ったときと、ページが隠れたときは、全部離す（B-24）
+    let shared = Rc::clone(&app);
+    listen(&window, "blur", move |_: Event| shared.release_all())?;
+    let shared = Rc::clone(&app);
+    listen(&app.document, "visibilitychange", move |_: Event| {
+        if shared.document.hidden() {
+            shared.release_all()?;
+        }
+        Ok(())
+    })?;
+
+    // ボタンを押したあとは、フォーカスを外す（手元の Space や Enter で、また押されないように）
+    let shared = Rc::clone(&app);
+    listen(&app.release_all, "click", move |_: Event| {
+        shared.release_all()?;
+        shared.release_all.blur()
+    })?;
+
+    // 「全部消す」は、欄と「直前のキー」を空にする。キーの状態は変えない（B-40）
+    let shared = Rc::clone(&app);
+    listen(&app.clear, "click", move |_: Event| {
+        {
+            let mut state = shared.state.borrow_mut();
+            state.field.clear();
+            state.last_key.clear();
+        }
+        shared.refresh()?;
+        shared.clear.blur()
+    })
+}
+
+/// id で要素を取る。無いとき・種類が違うときは、id を入れた文のエラーにする。
+fn element<T: JsCast>(document: &Document, id: &str) -> Result<T, JsValue> {
+    document
+        .get_element_by_id(id)
+        .and_then(|element| element.dyn_into().ok())
+        .ok_or_else(|| JsValue::from_str(&format!("index.html に #{id} がありません")))
 }
 
 /// 配列の図を、渡した中身で描き直す（B-11）。
