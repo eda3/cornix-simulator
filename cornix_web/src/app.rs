@@ -395,7 +395,11 @@ fn listen_switches(app: &Rc<App>) -> Result<(), JsValue> {
         let shared = Rc::clone(app);
         listen(&app.layouts[index], "change", move |_: Event| {
             shared.state.borrow_mut().layout = layout;
-            shared.refresh()?;
+            shared.refresh()
+        })?;
+        // フォーカスは、選んである物を押したとき（change が来ない）にも外す
+        let shared = Rc::clone(app);
+        listen(&app.layouts[index], "click", move |_: Event| {
             shared.layouts[index].blur()
         })?;
     }
@@ -411,16 +415,19 @@ fn listen_switches(app: &Rc<App>) -> Result<(), JsValue> {
     // レイヤーの列のボタン（B-18）。ボタンは .vil を読むたびに作り直すので、置く所でまとめて受ける
     let shared = Rc::clone(app);
     listen(&app.layer_buttons, "click", move |event: Event| {
-        let Some(value) = event
+        let Some(button) = event
             .target()
-            .and_then(|target| target.dyn_into::<Element>().ok())
-            .and_then(|button| button.get_attribute("data-layer"))
+            .and_then(|target| target.dyn_into::<HtmlElement>().ok())
         else {
+            return Ok(());
+        };
+        let Some(value) = button.get_attribute("data-layer") else {
             return Ok(());
         };
         // 番号でない物（"auto"）は、「自動」
         shared.state.borrow_mut().shown = value.parse().map_or(Shown::Auto, Shown::Layer);
-        shared.refresh()
+        shared.refresh()?;
+        button.blur()
     })
 }
 
