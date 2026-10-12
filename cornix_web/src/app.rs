@@ -48,6 +48,17 @@ struct State {
     last_key: String,
 }
 
+/// 読み取りの結果を受ける関数。
+type ReadHandler = Closure<dyn FnMut(Event) -> Result<(), JsValue>>;
+
+/// ファイル1つの読み取り。読む物と、結果を受ける関数を、いっしょに持つ
+/// （次のファイルを選んだときに、まとめて捨てるため）。
+struct Reading {
+    reader: FileReader,
+    _on_load: ReadHandler,
+    _on_error: ReadHandler,
+}
+
 /// ページの中の、読み書きする部品と、いまの状態。
 struct App {
     window: Window,
@@ -68,8 +79,8 @@ struct App {
     choose_vil: HtmlElement,
     /// ファイルを選ぶ部品（画面には出さず、ボタンから開く）。
     vil_file: HtmlInputElement,
-    /// いちばん後に選んだファイルを読んでいる物。
-    reader: RefCell<Option<FileReader>>,
+    /// いちばん後に選んだファイルの、読み取り。
+    reading: RefCell<Option<Reading>>,
     /// 配列の選択（JIS・US の順）。
     layouts: [HtmlInputElement; 2],
     /// 「手元のキーの名前」のチェック。
@@ -112,7 +123,7 @@ impl App {
             load_error: element(&document, "load-error")?,
             choose_vil: element(&document, "choose-vil")?,
             vil_file: element(&document, "vil-file")?,
-            reader: RefCell::new(None),
+            reading: RefCell::new(None),
             layouts: [
                 element(&document, "layout-jis")?,
                 element(&document, "layout-us")?,
@@ -323,23 +334,33 @@ fn listen_file(app: &Rc<App>) -> Result<(), JsValue> {
         // 読む物は、選ぶたびに作る（前のファイルを読んでいる途中でも、名前と中身が食い違わないように）。
         // 前の読み取りは、やめる（いちばん後に選んだファイルが出るように）
         let reader = FileReader::new()?;
-        if let Some(previous) = shared.reader.replace(Some(reader.clone())) {
-            previous.abort();
-        }
         let name = file.name();
         let loaded = reader.clone();
         let app = Rc::clone(&shared);
-        listen(&reader, "load", move |_: Event| {
+        let on_load = ReadHandler::new(move |_: Event| {
             let text = loaded.result()?.as_string().unwrap_or_default();
             app.load(&name, &text)
-        })?;
+        });
         // 読み取り自体が失敗したら、理由を出すだけで、図と状態は前のまま（B-08）
         let app = Rc::clone(&shared);
-        listen(&reader, "error", move |_: Event| {
+        let on_error = ReadHandler::new(move |_: Event| {
             app.load_error.set_text_content(Some(READ_FAILED_MESSAGE));
             Ok(())
-        })?;
+        });
+        reader.set_onload(Some(on_load.as_ref().unchecked_ref()));
+        reader.set_onerror(Some(on_error.as_ref().unchecked_ref()));
         reader.read_as_text(&file)?;
+        // 関数は、次のファイルを選ぶまで生かしておく。前の物は、外してから捨てる
+        let previous = shared.reading.replace(Some(Reading {
+            reader,
+            _on_load: on_load,
+            _on_error: on_error,
+        }));
+        if let Some(previous) = previous {
+            previous.reader.set_onload(None);
+            previous.reader.set_onerror(None);
+            previous.reader.abort();
+        }
         // 同じファイルを選び直しても、change が届くようにする
         shared.vil_file.set_value("");
         Ok(())
