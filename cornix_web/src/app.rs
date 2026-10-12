@@ -442,15 +442,16 @@ fn listen_screen(app: &Rc<App>) -> Result<(), JsValue> {
                 let _ = promise.then2(&on_locked, &on_refused);
             }
             shared.show_screen();
-            Ok(())
         } else {
+            // 画面を戻して全部離すのを先にする（unlock が失敗しても、ここまでは済むように）
+            shared.state.borrow_mut().keyboard_locked = false;
+            shared.show_screen();
+            shared.release_all()?;
             if let Some(keyboard) = keyboard {
                 call(&keyboard, "unlock")?;
             }
-            shared.state.borrow_mut().keyboard_locked = false;
-            shared.show_screen();
-            shared.release_all()
         }
+        Ok(())
     })
 }
 
