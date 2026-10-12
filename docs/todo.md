@@ -80,7 +80,7 @@
 - [x] 全画面と、注意の文を付ける（B-42〜B-45）
   - メモ: 1周目の計測ページで通った方法（design 6節の M-8）で、全画面と Keyboard Lock を呼ぶ。全画面を抜けたとき（fullscreenchange）に、Keyboard Lock を外して、全部離す
   - 足してよい依存: wasm-bindgen-futures（Keyboard Lock の結果を待つのに要るときだけ。要らなければ足さない）
-- [ ] 点検: test-reviewer に点検させ、指摘を壊し方で確かめて直す（最大2回）
+- [x] 点検: test-reviewer に点検させ、指摘を壊し方で確かめて直す（最大2回）
   - メモ: この周で `cornix_logic` に足した判断があれば、そこが中心
 - [ ] 【えだ】ブラウザで⑭〜⑱を見て、結果を `docs/measurements.md` の⑤に書く
   - メモ: 通らなかった番号と、見えたことを書く。直しは、この下に項目を足す（1件1項目）

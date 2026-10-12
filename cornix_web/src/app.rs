@@ -156,11 +156,8 @@ impl App {
     fn load(&self, name: &str, text: &str) -> Result<(), JsValue> {
         match parse(text) {
             Ok(keymap) => {
-                let guide = format!(
-                    "読み込みました: {name}（レイヤー {} 個）",
-                    keymap.layer_count()
-                );
-                self.guide.set_text_content(Some(&guide));
+                self.guide
+                    .set_text_content(Some(&keymap.loaded_message(name)));
                 self.notice
                     .set_text_content(keymap.notices().message().as_deref());
                 self.load_error.set_text_content(None);
@@ -169,8 +166,8 @@ impl App {
                 state.shown = Shown::Auto;
             }
             Err(error) => {
-                let reason = format!("読めませんでした: {error}");
-                self.load_error.set_text_content(Some(&reason));
+                self.load_error
+                    .set_text_content(Some(&error.failed_message()));
             }
         }
         self.refresh()
@@ -184,12 +181,8 @@ impl App {
     /// 全画面のボタンの文と、注意の文を、いまの状態のとおりに書き直す（B-42・B-43）。
     fn show_screen(&self) {
         let fullscreen = self.is_fullscreen();
-        let label = if fullscreen {
-            "全画面をやめる"
-        } else {
-            "全画面で試す"
-        };
-        self.fullscreen.set_text_content(Some(label));
+        self.fullscreen
+            .set_text_content(Some(caution::button_label(fullscreen)));
         let locked = self.state.borrow().keyboard_locked;
         self.caution
             .set_text_content(Some(caution::text(fullscreen, locked)));
@@ -219,9 +212,8 @@ impl App {
             self.layer_buttons.append_child(&button)?;
         }
         // 「有効なレイヤー: 0・1」の形（B-19）
-        let layers: Vec<String> = view.active_layers.iter().map(ToString::to_string).collect();
         self.active_layers
-            .set_text_content(Some(&format!("有効なレイヤー: {}", layers.join("・"))));
+            .set_text_content(Some(&view.active_layers_text()));
         // 札は、左右のどちらかが入っていれば点く（B-32）
         let modifiers = [engine.shift(), engine.ctrl(), engine.alt(), engine.gui()];
         for (badge, on) in self.badges.iter().zip(modifiers) {

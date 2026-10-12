@@ -184,6 +184,23 @@ impl Keymap {
     pub const fn notices(&self) -> Notices {
         self.notices
     }
+
+    /// 読めたときの案内の文（B-07）。`file_name` は、選んだファイルの名前。
+    #[must_use]
+    pub fn loaded_message(&self, file_name: &str) -> String {
+        format!(
+            "読み込みました: {file_name}（レイヤー {} 個）",
+            self.layer_count()
+        )
+    }
+}
+
+impl VilError {
+    /// 読めないときの案内の文（B-08）。
+    #[must_use]
+    pub fn failed_message(&self) -> String {
+        format!("読めませんでした: {self}")
+    }
 }
 
 /// .vil の中身（文字列）を読む。

@@ -26,9 +26,26 @@ pub const fn text(fullscreen: bool, keyboard_locked: bool) -> &'static str {
     }
 }
 
+/// 全画面のボタンの文（B-42）。
+#[must_use]
+pub const fn button_label(fullscreen: bool) -> &'static str {
+    if fullscreen {
+        "全画面をやめる"
+    } else {
+        "全画面で試す"
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use super::text;
+    use super::{button_label, text};
+
+    /// 期待値は、design の B-42 から手で写した物。
+    #[test]
+    fn b42_button_label() {
+        assert_eq!(button_label(false), "全画面で試す");
+        assert_eq!(button_label(true), "全画面をやめる");
+    }
 
     /// 期待値は、design の B-43 から手で写した物。
     #[test]

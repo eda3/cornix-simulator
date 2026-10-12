@@ -62,6 +62,13 @@ impl View {
     pub fn cell(&self, row: usize, col: usize) -> Option<&Cell> {
         self.cells.iter().find(|cell| cell.position == (row, col))
     }
+
+    /// 有効なレイヤーの番号を出す文（B-19）。「有効なレイヤー: 0・1」の形。
+    #[must_use]
+    pub fn active_layers_text(&self) -> String {
+        let layers: Vec<String> = self.active_layers.iter().map(ToString::to_string).collect();
+        format!("有効なレイヤー: {}", layers.join("・"))
+    }
 }
 
 /// 図に出す中身を作る。

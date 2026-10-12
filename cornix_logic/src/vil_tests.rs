@@ -422,4 +422,35 @@ fn b07_notice_message_omits_zero_counts() {
         notices(0, 0, 1, 0).message().as_deref(),
         Some("動かない物: タップダンス 1 個")
     );
+    // コンボだけ・マクロだけでも、知らせを出す
+    assert_eq!(
+        notices(0, 2, 0, 0).message().as_deref(),
+        Some("動かない物: コンボ 2 個")
+    );
+    assert_eq!(
+        notices(0, 0, 0, 4).message().as_deref(),
+        Some("動かない物: マクロ 4 個")
+    );
+}
+
+/// 案内の文（B-07・B-08）。期待値は、design の文の形から手で書いた物。
+#[test]
+fn b07_b08_guide_messages() -> Result<(), VilError> {
+    assert_eq!(
+        parse(crate::sample::SAMPLE_VIL)?.loaded_message("cornix-default-keymap.vil"),
+        "読み込みました: cornix-default-keymap.vil（レイヤー 10 個）"
+    );
+    assert_eq!(
+        parse(&VilBuilder::new(1).build())?.loaded_message("a.vil"),
+        "読み込みました: a.vil（レイヤー 1 個）"
+    );
+    assert_eq!(
+        VilError::NotJson.failed_message(),
+        "読めませんでした: JSON として読めません"
+    );
+    assert_eq!(
+        VilError::BadRowCount { layer: 0, found: 2 }.failed_message(),
+        "読めませんでした: レイヤー 0 の行の数が 8 ではありません（2 行）"
+    );
+    Ok(())
 }
