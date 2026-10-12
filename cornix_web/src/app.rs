@@ -1,7 +1,7 @@
 //! シミュレータ本体（`static/index.html`）の、DOM との受け渡し。wasm32 のときだけ。
 //!
 //! 図に出す中身を決める判断は `cornix_logic` に置き、ここは、それを描くだけにする。
-//! 振る舞いは `docs/design.md` の B-01〜B-08・B-11〜B-45。
+//! 振る舞いは `docs/design.md` の B-01〜B-08・B-11・B-17・B-20・B-21・B-24・B-42〜B-45。
 
 use std::cell::RefCell;
 use std::rc::Rc;
