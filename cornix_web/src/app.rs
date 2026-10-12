@@ -46,8 +46,6 @@ struct State {
     field: TextField,
     /// 「直前のキー」の文。
     last_key: String,
-    /// 読んでいる途中の .vil の、ファイル名。
-    file_name: String,
 }
 
 /// ページの中の、読み書きする部品と、いまの状態。
@@ -70,8 +68,8 @@ struct App {
     choose_vil: HtmlElement,
     /// ファイルを選ぶ部品（画面には出さず、ボタンから開く）。
     vil_file: HtmlInputElement,
-    /// 選んだファイルを、文字列として読む物。
-    reader: FileReader,
+    /// いちばん後に選んだファイルを読んでいる物。
+    reader: RefCell<Option<FileReader>>,
     /// 配列の選択（JIS・US の順）。
     layouts: [HtmlInputElement; 2],
     /// 「手元のキーの名前」のチェック。
@@ -114,7 +112,7 @@ impl App {
             load_error: element(&document, "load-error")?,
             choose_vil: element(&document, "choose-vil")?,
             vil_file: element(&document, "vil-file")?,
-            reader: FileReader::new()?,
+            reader: RefCell::new(None),
             layouts: [
                 element(&document, "layout-jis")?,
                 element(&document, "layout-us")?,
@@ -143,7 +141,6 @@ impl App {
                 keyboard_locked: false,
                 field: TextField::default(),
                 last_key: String::new(),
-                file_name: String::new(),
             }),
         })
     }
@@ -323,17 +320,23 @@ fn listen_file(app: &Rc<App>) -> Result<(), JsValue> {
         let Some(file) = shared.vil_file.files().and_then(|files| files.get(0)) else {
             return Ok(());
         };
-        shared.state.borrow_mut().file_name = file.name();
-        shared.reader.read_as_text(&file)?;
+        // 読む物は、選ぶたびに作る（前のファイルを読んでいる途中でも、名前と中身が食い違わないように）。
+        // 前の読み取りは、やめる（いちばん後に選んだファイルが出るように）
+        let reader = FileReader::new()?;
+        if let Some(previous) = shared.reader.replace(Some(reader.clone())) {
+            previous.abort();
+        }
+        let name = file.name();
+        let loaded = reader.clone();
+        let app = Rc::clone(&shared);
+        listen(&reader, "load", move |_: Event| {
+            let text = loaded.result()?.as_string().unwrap_or_default();
+            app.load(&name, &text)
+        })?;
+        reader.read_as_text(&file)?;
         // 同じファイルを選び直しても、change が届くようにする
         shared.vil_file.set_value("");
         Ok(())
-    })?;
-    let shared = Rc::clone(app);
-    listen(&app.reader, "load", move |_: Event| {
-        let text = shared.reader.result()?.as_string().unwrap_or_default();
-        let name = shared.state.borrow().file_name.clone();
-        shared.load(&name, &text)
     })
 }
 
