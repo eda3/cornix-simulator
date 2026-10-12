@@ -1,7 +1,7 @@
 //! シミュレータ本体（`static/index.html`）の、DOM との受け渡し。wasm32 のときだけ。
 //!
 //! 図に出す中身を決める判断は `cornix_logic` に置き、ここは、それを描くだけにする。
-//! 振る舞いは `docs/design.md` の B-01〜B-04・B-11〜B-14・B-17・B-19〜B-41。
+//! 振る舞いは `docs/design.md` の B-01〜B-08・B-11〜B-14・B-17・B-19〜B-41。
 
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -15,7 +15,7 @@ use cornix_logic::text::TextField;
 use cornix_logic::view::{Cell, Shown, Tone, View, render};
 use cornix_logic::vil::parse;
 use wasm_bindgen::prelude::*;
-use web_sys::{Document, Element, Event, HtmlElement, KeyboardEvent};
+use web_sys::{Document, Element, Event, FileReader, HtmlElement, HtmlInputElement, KeyboardEvent};
 
 use crate::dom::listen;
 
@@ -34,11 +34,25 @@ struct State {
     field: TextField,
     /// 「直前のキー」の文。
     last_key: String,
+    /// 読んでいる途中の .vil の、ファイル名。
+    file_name: String,
 }
 
 /// ページの中の、読み書きする部品と、いまの状態。
 struct App {
     document: Document,
+    /// 案内のうち、いま出ているキーマップの文。
+    guide: Element,
+    /// 案内のうち、知らせ（動かない物の数）。
+    notice: Element,
+    /// 案内のうち、読めなかった理由。
+    load_error: Element,
+    /// 「.vil を選ぶ」のボタン。
+    choose_vil: HtmlElement,
+    /// ファイルを選ぶ部品（画面には出さず、ボタンから開く）。
+    vil_file: HtmlInputElement,
+    /// 選んだファイルを、文字列として読む物。
+    reader: FileReader,
     /// 配列の図（SVG）。
     figure: Element,
     /// 有効なレイヤーの番号を出す所。
@@ -61,6 +75,12 @@ impl App {
     fn find(document: Document) -> Result<Self, JsValue> {
         let keymap = parse(SAMPLE_VIL).map_err(|error| JsValue::from_str(&error.to_string()))?;
         Ok(Self {
+            guide: element(&document, "guide-text")?,
+            notice: element(&document, "notice")?,
+            load_error: element(&document, "load-error")?,
+            choose_vil: element(&document, "choose-vil")?,
+            vil_file: element(&document, "vil-file")?,
+            reader: FileReader::new()?,
             figure: element(&document, "figure")?,
             active_layers: element(&document, "active-layers")?,
             badges: [
@@ -78,8 +98,34 @@ impl App {
                 engine: Engine::new(keymap),
                 field: TextField::default(),
                 last_key: String::new(),
+                file_name: String::new(),
             }),
         })
+    }
+
+    /// 選んだ .vil の中身（文字列）を読む。
+    ///
+    /// 読めたら、案内と知らせを変え、キーの状態を、何も押していない状態に戻す。欄と「直前のキー」は
+    /// 変えない（B-06・B-07）。読めないときは、理由を出すだけで、図と状態は前のまま（B-08）。
+    fn load(&self, name: &str, text: &str) -> Result<(), JsValue> {
+        match parse(text) {
+            Ok(keymap) => {
+                let guide = format!(
+                    "読み込みました: {name}（レイヤー {} 個）",
+                    keymap.layer_count()
+                );
+                self.guide.set_text_content(Some(&guide));
+                self.notice
+                    .set_text_content(keymap.notices().message().as_deref());
+                self.load_error.set_text_content(None);
+                self.state.borrow_mut().engine = Engine::new(keymap);
+            }
+            Err(error) => {
+                let reason = format!("読めませんでした: {error}");
+                self.load_error.set_text_content(Some(&reason));
+            }
+        }
+        self.refresh()
     }
 
     /// 図・有効なレイヤー・修飾キーの札・「直前のキー」・欄を、いまの状態のとおりに書き直す。
@@ -160,6 +206,30 @@ pub fn run_simulator() -> Result<(), JsValue> {
             shared.release_all()?;
         }
         Ok(())
+    })?;
+
+    // 「.vil を選ぶ」は、ファイルを選ぶ部品を開く。選んだファイルは、文字列として読む（B-05）
+    let shared = Rc::clone(&app);
+    listen(&app.choose_vil, "click", move |_: Event| {
+        shared.vil_file.click();
+        shared.choose_vil.blur()
+    })?;
+    let shared = Rc::clone(&app);
+    listen(&app.vil_file, "change", move |_: Event| {
+        let Some(file) = shared.vil_file.files().and_then(|files| files.get(0)) else {
+            return Ok(());
+        };
+        shared.state.borrow_mut().file_name = file.name();
+        shared.reader.read_as_text(&file)?;
+        // 同じファイルを選び直しても、change が届くようにする
+        shared.vil_file.set_value("");
+        Ok(())
+    })?;
+    let shared = Rc::clone(&app);
+    listen(&app.reader, "load", move |_: Event| {
+        let text = shared.reader.result()?.as_string().unwrap_or_default();
+        let name = shared.state.borrow().file_name.clone();
+        shared.load(&name, &text)
     })?;
 
     // ボタンを押したあとは、フォーカスを外す（手元の Space や Enter で、また押されないように）

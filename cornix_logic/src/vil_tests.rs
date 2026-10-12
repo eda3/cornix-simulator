@@ -393,3 +393,33 @@ fn item5_missing_or_non_array_fields_count_zero() -> Result<(), VilError> {
     assert_eq!(notices_of(&builder)?, Notices::default());
     Ok(())
 }
+
+/// 知らせの文（B-07）。期待値は、design の B-07 の形から手で書いた物。
+#[test]
+fn b07_notice_message_omits_zero_counts() {
+    let notices = |unsupported_keys, combos, tap_dances, macros| Notices {
+        unsupported_keys,
+        combos,
+        tap_dances,
+        macros,
+    };
+    // 全部 0 なら、知らせは出さない
+    assert_eq!(notices(0, 0, 0, 0).message(), None);
+    assert_eq!(
+        notices(6, 0, 0, 0).message().as_deref(),
+        Some("動かない物: 未対応のキー 6 個")
+    );
+    assert_eq!(
+        notices(1, 2, 3, 4).message().as_deref(),
+        Some("動かない物: 未対応のキー 1 個、コンボ 2 個、タップダンス 3 個、マクロ 4 個")
+    );
+    // 0 個の物は、間にあっても、先頭にあっても省く
+    assert_eq!(
+        notices(0, 2, 0, 4).message().as_deref(),
+        Some("動かない物: コンボ 2 個、マクロ 4 個")
+    );
+    assert_eq!(
+        notices(0, 0, 1, 0).message().as_deref(),
+        Some("動かない物: タップダンス 1 個")
+    );
+}

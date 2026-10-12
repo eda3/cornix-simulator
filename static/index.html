@@ -8,6 +8,9 @@
     body { font-family: sans-serif; margin: 16px; }
     h1 { margin-bottom: 4px; }
     #unofficial { margin-top: 0; color: #a00; }
+    #notice:empty, #load-error:empty { display: none; }
+    #load-error { color: #a00; }
+    #controls > * { margin-right: 12px; }
     #figure { display: block; width: 100%; max-width: 1100px; }
     .key rect, .key circle { fill: #fff; stroke: #888; }
     .key.pressed rect { fill: #ffd54f; }
@@ -25,11 +28,15 @@
   <h1>Cornix LP シミュレータ</h1>
   <p id="unofficial">非公式（メーカーとは関係のない、個人の制作物）</p>
   <p id="guide">
-    いま出ているのは、見本のキーマップです。Cornix の初期キーマップ（cornix-default-keymap.vil）は、公式マニュアルの「初期キーマップ」から入手して、「.vil を選ぶ」で読み込めます。
+    <span id="guide-text">いま出ているのは、見本のキーマップです。Cornix の初期キーマップ（cornix-default-keymap.vil）は、公式マニュアルの「初期キーマップ」から入手して、「.vil を選ぶ」で読み込めます。</span>
     <a href="https://docs.channel.io/jezailfunderjp/ja/articles/Cornix-%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83%9E%E3%83%8B%E3%83%A5%E3%82%A2%E3%83%AB-c1160246">公式マニュアル</a>
   </p>
+  <p id="notice"></p>
+  <p id="load-error"></p>
 
   <div id="controls">
+    <button id="choose-vil" type="button">.vil を選ぶ</button>
+    <input id="vil-file" type="file" hidden>
     <button id="release-all" type="button">キーを全部離す</button>
   </div>
 
