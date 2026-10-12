@@ -396,7 +396,7 @@ fn item5_missing_or_non_array_fields_count_zero() -> Result<(), VilError> {
 
 /// 知らせの文（B-07）。期待値は、design の B-07 の形から手で書いた物。
 #[test]
-fn b07_notice_message_omits_zero_counts() {
+fn b07_notice_message_omits_zero_counts() -> Result<(), VilError> {
     let notices = |unsupported_keys, combos, tap_dances, macros| Notices {
         unsupported_keys,
         combos,
@@ -431,6 +431,7 @@ fn b07_notice_message_omits_zero_counts() {
         notices(0, 0, 0, 4).message().as_deref(),
         Some("動かない物: マクロ 4 個")
     );
+    Ok(())
 }
 
 /// 案内の文（B-07・B-08）。期待値は、design の文の形から手で書いた物。
@@ -457,9 +458,10 @@ fn b07_b08_guide_messages() -> Result<(), VilError> {
 
 /// ファイルの読み取り自体が失敗したときの文（B-08）。期待値は、design から手で写した物。
 #[test]
-fn b08_read_failed_message() {
+fn b08_read_failed_message() -> Result<(), VilError> {
     assert_eq!(
         crate::vil::READ_FAILED_MESSAGE,
         "読めませんでした: ファイルを読めません"
     );
+    Ok(())
 }

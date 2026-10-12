@@ -42,14 +42,15 @@ mod tests {
 
     /// 期待値は、design の B-42 から手で写した物。
     #[test]
-    fn b42_button_label() {
+    fn b42_button_label() -> Result<(), String> {
         assert_eq!(button_label(false), "全画面で試す");
         assert_eq!(button_label(true), "全画面をやめる");
+        Ok(())
     }
 
     /// 期待値は、design の B-43 から手で写した物。
     #[test]
-    fn b43_three_texts_by_state() {
+    fn b43_three_texts_by_state() -> Result<(), String> {
         let windowed = "ふつうの窓では、Ctrl+W でタブが閉じ、Win キーでスタートメニューが開きます。Ctrl・Win・Alt も試すときは「全画面で試す」を使ってください。";
         assert_eq!(text(false, false), windowed);
         // ふつうの窓では、Keyboard Lock が掛かっていても（抜けた直後など）、ふつうの窓の文
@@ -62,5 +63,6 @@ mod tests {
             text(true, false),
             "全画面ですが、このブラウザでは Win キーなどを受けられません。"
         );
+        Ok(())
     }
 }
