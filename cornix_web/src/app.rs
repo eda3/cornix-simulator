@@ -87,6 +87,8 @@ struct App {
     host_labels: HtmlInputElement,
     /// レイヤーの列の、「自動」と番号のボタンを置く所。
     layer_buttons: Element,
+    /// レイヤーの列のボタンと、それぞれが選ぶ物。
+    layer_choices: RefCell<Vec<(Shown, Element)>>,
     /// 配列の図（SVG）。
     figure: Element,
     /// 有効なレイヤーの番号を出す所。
@@ -130,6 +132,7 @@ impl App {
             ],
             host_labels: element(&document, "host-labels")?,
             layer_buttons: element(&document, "layer-buttons")?,
+            layer_choices: RefCell::new(Vec::new()),
             figure: element(&document, "figure")?,
             active_layers: element(&document, "active-layers")?,
             badges: [
@@ -169,9 +172,12 @@ impl App {
                 self.notice
                     .set_text_content(keymap.notices().message().as_deref());
                 self.load_error.set_text_content(None);
-                let mut state = self.state.borrow_mut();
-                state.engine = Engine::new(keymap);
-                state.shown = Shown::Auto;
+                {
+                    let mut state = self.state.borrow_mut();
+                    state.engine = Engine::new(keymap);
+                    state.shown = Shown::Auto;
+                }
+                self.build_layer_buttons()?;
             }
             Err(error) => {
                 self.load_error
@@ -179,6 +185,30 @@ impl App {
             }
         }
         self.refresh()
+    }
+
+    /// レイヤーの列のボタンを作り直す。「自動」と、いまのキーマップのレイヤーの番号（B-18）。
+    ///
+    /// キーマップが変わったときにだけ呼ぶ（キーを打つたびに作り直すと、押している途中のボタンが
+    /// 消えて、クリックが届かないため）。
+    fn build_layer_buttons(&self) -> Result<(), JsValue> {
+        self.layer_buttons.set_text_content(None);
+        let layers = (0..self.state.borrow().engine.keymap().layer_count()).map(Shown::Layer);
+        let mut choices = Vec::new();
+        for choice in std::iter::once(Shown::Auto).chain(layers) {
+            let (label, value) = match choice {
+                Shown::Auto => ("自動".to_owned(), "auto".to_owned()),
+                Shown::Layer(layer) => (layer.to_string(), layer.to_string()),
+            };
+            let button = self.document.create_element("button")?;
+            button.set_attribute("type", "button")?;
+            button.set_attribute("data-layer", &value)?;
+            button.set_text_content(Some(&label));
+            self.layer_buttons.append_child(&button)?;
+            choices.push((choice, button));
+        }
+        *self.layer_choices.borrow_mut() = choices;
+        Ok(())
     }
 
     /// ページが（JavaScript から頼んだ）全画面になっているか。
@@ -202,22 +232,9 @@ impl App {
         let engine = &state.engine;
         let view = render(engine, state.layout, state.shown, state.host_labels);
         draw(&self.document, &self.figure, &view)?;
-        // レイヤーの列は、「自動」と、読み込んだキーマップのレイヤーの番号（B-18）
-        self.layer_buttons.set_text_content(None);
-        let layers = (0..engine.keymap().layer_count()).map(Shown::Layer);
-        for choice in std::iter::once(Shown::Auto).chain(layers) {
-            let (label, value) = match choice {
-                Shown::Auto => ("自動".to_owned(), "auto".to_owned()),
-                Shown::Layer(layer) => (layer.to_string(), layer.to_string()),
-            };
-            let button = self.document.create_element("button")?;
-            button.set_attribute("type", "button")?;
-            button.set_attribute("data-layer", &value)?;
-            if choice == state.shown {
-                button.set_attribute("class", "on")?;
-            }
-            button.set_text_content(Some(&label));
-            self.layer_buttons.append_child(&button)?;
+        // レイヤーの列は、選んでいるボタンの印を付け替えるだけ（B-18）
+        for (choice, button) in self.layer_choices.borrow().iter() {
+            button.set_attribute("class", if *choice == state.shown { "on" } else { "" })?;
         }
         // 「有効なレイヤー: 0・1」の形（B-19）
         self.active_layers
@@ -255,6 +272,7 @@ pub fn run_simulator() -> Result<(), JsValue> {
     app.layouts[0].set_checked(true);
     app.host_labels.set_checked(true);
     app.show_screen();
+    app.build_layer_buttons()?;
     app.refresh()?;
     listen_keys(&app)?;
     listen_file(&app)?;
@@ -390,7 +408,7 @@ fn listen_switches(app: &Rc<App>) -> Result<(), JsValue> {
         shared.host_labels.blur()
     })?;
 
-    // レイヤーの列のボタン（B-18）。ボタンは描き直すたびに作り直すので、置く所でまとめて受ける
+    // レイヤーの列のボタン（B-18）。ボタンは .vil を読むたびに作り直すので、置く所でまとめて受ける
     let shared = Rc::clone(app);
     listen(&app.layer_buttons, "click", move |event: Event| {
         let Some(value) = event
