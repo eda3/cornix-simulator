@@ -47,9 +47,9 @@ Cornix の初期キーマップ（`cornix-default-keymap.vil`）は、公式マ�
 
 ## 対象
 
-- ブラウザ: Windows の Chrome と Edge。ほかのブラウザは、対象の外です。
-- 確かめたのは、Edge（全画面＋Keyboard Lock で、Win キーと Ctrl+W がページに届く）と、Brave（開いたときの見え方・打つ・.vil を選ぶ・切り替え）です。Chrome では、まだ確かめていません。
-- Brave は Keyboard Lock が無いので、全画面にはなりますが、Win キーなどは受けられません（そのことを、注意の文で出します）。
+- ブラウザ: 対象は、Windows の Chrome と Edge です。ほかのブラウザは、確かめる対象にしていません。
+- 対象のブラウザで作者が確かめたのは、Edge の全画面＋Keyboard Lock（Win キーと Ctrl+W がページに届く）です。Chrome では、まだ確かめていません。
+- 対象の外の Brave でも、作者の手元では、開いたときの見え方・打つ・.vil を選ぶ・切り替えが動きました。Brave は Keyboard Lock が無いので、全画面にはなりますが、Win キーなどは受けられません（そのことを、注意の文で出します）。
 - キーボード: 実測は REALFORCE Mac用 JIS＋KeySwap の環境で行いました。CapsLock・カタカナひらがな・右 Win のキーは、手元のキーボードに無いので、未実測です。
 
 ## できること
