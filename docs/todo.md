@@ -120,7 +120,7 @@
 - [x] GitHub Actions の workflow を作る（B-53）
   - メモ: `.github/workflows/pages.yml`。main への push と、手動（workflow_dispatch）で動く。流れは、checkout → `rustup target add wasm32-unknown-unknown` → wasm-pack を入れる（公式のリリースの `wasm-pack-v0.15.0-x86_64-unknown-linux-musl.tar.gz` を curl で取って展開する。版は固定）→ `cargo test --workspace` → `wasm-pack build cornix_web --target web --out-dir ../static/pkg --no-typescript` → `actions/configure-pages` → `actions/upload-pages-artifact`（path は `static`）→ `actions/deploy-pages`。使う Action は、公式の actions/* だけ（版は research 5.2節）。権限は `contents: read`・`pages: write`・`id-token: write`。テストが落ちたら、その先へ進まない
   - 完了条件: workflow のファイルがある。実際に通るかは、次の【えだ】
-- [ ] レビュー: /code-review を low → medium → high で掛け、本物だけ直す（1件1コミット）。Claude Code が自分で掛ける。掛けられなければ止まって、えだに頼む
+- [x] レビュー: /code-review を low → medium → high で掛け、本物だけ直す（1件1コミット）。Claude Code が自分で掛ける。掛けられなければ止まって、えだに頼む
 - [x] 直し: README の対象のブラウザの文を、B-45 に合わせる
   - メモ: `/code-review` の指摘。「ほかのブラウザは対象の外」のすぐあとに Brave を「確かめた」と並べていて、Brave が対象に読める。ほかのブラウザは確かめる対象にしていないこと（B-45）と、対象の外の Brave で動いたこと（measurements ⑤）を、分けて書く
 - [x] 直し: README の「全部消す」の説明を、B-40 に合わせる
@@ -150,3 +150,4 @@
 - 公開の workflow の `cargo test` と wasm-pack のビルドに `--locked` が無く、Cargo.lock が Cargo.toml とずれたときに、黙って解き直す（`/code-review` の指摘・2026-10-18）
 - 公開の workflow は、取ってきた wasm-pack の SHA-256 を確かめていない（版は固定しているが、中身は確かめていない）（`/code-review` の指摘・2026-10-18）
 - 公開の workflow にキャッシュが無く、実行のたびに、依存を全部作り直す（`/code-review` の指摘・2026-10-18）
+- 公開の workflow は PR では動かず、テストと wasm32 のビルドが走るのは main に入ってから（`/code-review` の指摘・2026-10-18）
