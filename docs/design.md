@@ -626,6 +626,7 @@ crate は2つ（D-7）。ルートの `Cargo.toml` は `[workspace]` だけに�
 準備のあとで、えだが決めたこと:
 
 - シミュレータは keyhac を止めて使う。対応表（3.4節）は、keyhac を止めたときの届き方で組む（2026-10-03）。理由: 多くの人は keyhac を使っていないし、えだも使うときは無効にするため。
+- ライセンスは MIT（Copyright (c) 2026 eda3）。LICENSE を作り、README のライセンスの節と、2つの Cargo.toml の license を合わせた（2026-10-18）。
 
 ### 5.2 Claude Code が決めたこと
 
