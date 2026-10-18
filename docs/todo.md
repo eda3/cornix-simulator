@@ -114,13 +114,21 @@
 
 ブランチ: `stage4-pages`
 
-- [ ] README を、実物に合わせて直す
+- [x] README を、実物に合わせて直す
   - メモ: 「予定」の断り書きを外す。使い方・手元で動かす手順・対象のブラウザ・できること／できないことを、実物に合わせる。「非公式」と、座標の出どころ・「メーカーの許可は未確認」は残す。LICENSE は、えだが決めるまで作らない
   - 完了条件: README.md だけが変わっている
-- [ ] GitHub Actions の workflow を作る（B-53）
+- [x] GitHub Actions の workflow を作る（B-53）
   - メモ: `.github/workflows/pages.yml`。main への push と、手動（workflow_dispatch）で動く。流れは、checkout → `rustup target add wasm32-unknown-unknown` → wasm-pack を入れる（公式のリリースの `wasm-pack-v0.15.0-x86_64-unknown-linux-musl.tar.gz` を curl で取って展開する。版は固定）→ `cargo test --workspace` → `wasm-pack build cornix_web --target web --out-dir ../static/pkg --no-typescript` → `actions/configure-pages` → `actions/upload-pages-artifact`（path は `static`）→ `actions/deploy-pages`。使う Action は、公式の actions/* だけ（版は research 5.2節）。権限は `contents: read`・`pages: write`・`id-token: write`。テストが落ちたら、その先へ進まない
   - 完了条件: workflow のファイルがある。実際に通るかは、次の【えだ】
-- [ ] レビュー: /code-review を low → medium → high で掛け、本物だけ直す（1件1コミット）。Claude Code が自分で掛ける。掛けられなければ止まって、えだに頼む
+- [x] レビュー: /code-review を low → medium → high で掛け、本物だけ直す（1件1コミット）。Claude Code が自分で掛ける。掛けられなければ止まって、えだに頼む
+- [x] 直し: README の対象のブラウザの文を、B-45 に合わせる
+  - メモ: `/code-review` の指摘。「ほかのブラウザは対象の外」のすぐあとに Brave を「確かめた」と並べていて、Brave が対象に読める。ほかのブラウザは確かめる対象にしていないこと（B-45）と、対象の外の Brave で動いたこと（measurements ⑤）を、分けて書く
+- [x] 直し: README の「全部消す」の説明を、B-40 に合わせる
+  - メモ: `/code-review` の指摘。欄だけでなく、「直前のキー」も空になる
+- [x] 直し: README の「できないこと」を、図に「未対応」と出るキーコードと、図に出ない定義に分けて書く（B-07・B-10・B-12・B-15）
+  - メモ: `/code-review` の指摘。コンボと key_override も「図に未対応と出る」と読めた。実物は、どちらも図に出ず、key_override は知らせの数にも入らない
+- [x] 直し: README の手元で動かす手順に、コマンドを動かす場所を書く
+  - メモ: `/code-review` の指摘。`--out-dir ../static/pkg` と `--directory static` は、リポジトリのいちばん上で動かす前提
 - [ ] 【えだ】Pages の設定をして、公開する
   - メモ: GitHub の Settings → Pages → Build and deployment の Source を「GitHub Actions」にする。PR の差分を読んで、合流を頼む。Actions の実行が成功するのを見る。失敗したら、ログの先頭20行を `docs/measurements.md` の⑥に貼って、Claude Code に直させる
 - [ ] 【えだ】公開ページで、⑲を確かめる
@@ -137,3 +145,9 @@
 - 読み終わったあとも、読んだ文字列と、結果を受ける関数が、次のファイルを選ぶまで残る（`/code-review` の指摘・2026-10-12）
 - キーを打つたび（押し続けを含む）に、図の全体を作り直している（`/code-review` の指摘・2026-10-12）
 - `cornix_web::app` と `cornix_web::keytest` で、`element()` と、全画面・Keyboard Lock の配線が重なっている。全画面の出入りの順番の直し（58203d3・9e3550b）は、`app` にだけ入っている（`/code-review` の指摘・2026-10-12）
+- 公開の workflow に concurrency の組が無く、続けて main に入ると、公開が2つ同時に走りうる（`/code-review` の指摘・2026-10-18）
+- 公開の workflow は、Rust の版を固定していない（runner に入っている stable で作る。README の「作者が確かめた版」は rustc 1.98.0）（`/code-review` の指摘・2026-10-18）
+- 公開の workflow の `cargo test` と wasm-pack のビルドに `--locked` が無く、Cargo.lock が Cargo.toml とずれたときに、黙って解き直す（`/code-review` の指摘・2026-10-18）
+- 公開の workflow は、取ってきた wasm-pack の SHA-256 を確かめていない（版は固定しているが、中身は確かめていない）（`/code-review` の指摘・2026-10-18）
+- 公開の workflow にキャッシュが無く、実行のたびに、依存を全部作り直す（`/code-review` の指摘・2026-10-18）
+- 公開の workflow は PR では動かず、テストと wasm32 のビルドが走るのは main に入ってから（`/code-review` の指摘・2026-10-18）
