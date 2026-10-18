@@ -117,7 +117,7 @@
 - [x] README を、実物に合わせて直す
   - メモ: 「予定」の断り書きを外す。使い方・手元で動かす手順・対象のブラウザ・できること／できないことを、実物に合わせる。「非公式」と、座標の出どころ・「メーカーの許可は未確認」は残す。LICENSE は、えだが決めるまで作らない
   - 完了条件: README.md だけが変わっている
-- [ ] GitHub Actions の workflow を作る（B-53）
+- [x] GitHub Actions の workflow を作る（B-53）
   - メモ: `.github/workflows/pages.yml`。main への push と、手動（workflow_dispatch）で動く。流れは、checkout → `rustup target add wasm32-unknown-unknown` → wasm-pack を入れる（公式のリリースの `wasm-pack-v0.15.0-x86_64-unknown-linux-musl.tar.gz` を curl で取って展開する。版は固定）→ `cargo test --workspace` → `wasm-pack build cornix_web --target web --out-dir ../static/pkg --no-typescript` → `actions/configure-pages` → `actions/upload-pages-artifact`（path は `static`）→ `actions/deploy-pages`。使う Action は、公式の actions/* だけ（版は research 5.2節）。権限は `contents: read`・`pages: write`・`id-token: write`。テストが落ちたら、その先へ進まない
   - 完了条件: workflow のファイルがある。実際に通るかは、次の【えだ】
 - [ ] レビュー: /code-review を low → medium → high で掛け、本物だけ直す（1件1コミット）。Claude Code が自分で掛ける。掛けられなければ止まって、えだに頼む
