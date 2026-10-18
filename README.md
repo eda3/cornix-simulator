@@ -101,7 +101,7 @@ python -m http.server 8000 --directory static
 
 ## ライセンス
 
-未定です（LICENSE は、まだありません）。
+MIT ライセンスです（[LICENSE](LICENSE)）。
 
 ## 開発
 

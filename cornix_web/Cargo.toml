@@ -2,6 +2,7 @@
 name = "cornix_web"
 version = "0.1.0"
 edition = "2024"
+license = "MIT"
 
 [dependencies]
 cornix_logic = { path = "../cornix_logic" }
