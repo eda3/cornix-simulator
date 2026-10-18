@@ -87,6 +87,8 @@ Cornix の初期キーマップ（`cornix-default-keymap.vil`）は、公式マ�
 
 要る物: Rust と、wasm32-unknown-unknown のターゲット、[wasm-pack](https://github.com/wasm-bindgen/wasm-pack)、Python（静的なファイルを配るのに使います）。作者が確かめた版は、rustc 1.98.0・wasm-pack 0.15.0・Python 3.12.10 です。
 
+リポジトリのいちばん上のフォルダ（`Cargo.toml` のある所）で、次を順に動かします。
+
 ```sh
 rustup target add wasm32-unknown-unknown
 wasm-pack build cornix_web --target web --out-dir ../static/pkg --no-typescript

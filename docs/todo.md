@@ -127,6 +127,8 @@
   - メモ: `/code-review` の指摘。欄だけでなく、「直前のキー」も空になる
 - [x] 直し: README の「できないこと」を、図に「未対応」と出るキーコードと、図に出ない定義に分けて書く（B-07・B-10・B-12・B-15）
   - メモ: `/code-review` の指摘。コンボと key_override も「図に未対応と出る」と読めた。実物は、どちらも図に出ず、key_override は知らせの数にも入らない
+- [x] 直し: README の手元で動かす手順に、コマンドを動かす場所を書く
+  - メモ: `/code-review` の指摘。`--out-dir ../static/pkg` と `--directory static` は、リポジトリのいちばん上で動かす前提
 - [ ] 【えだ】Pages の設定をして、公開する
   - メモ: GitHub の Settings → Pages → Build and deployment の Source を「GitHub Actions」にする。PR の差分を読んで、合流を頼む。Actions の実行が成功するのを見る。失敗したら、ログの先頭20行を `docs/measurements.md` の⑥に貼って、Claude Code に直させる
 - [ ] 【えだ】公開ページで、⑲を確かめる
