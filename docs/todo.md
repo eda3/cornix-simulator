@@ -139,3 +139,8 @@
 - 読み終わったあとも、読んだ文字列と、結果を受ける関数が、次のファイルを選ぶまで残る（`/code-review` の指摘・2026-10-12）
 - キーを打つたび（押し続けを含む）に、図の全体を作り直している（`/code-review` の指摘・2026-10-12）
 - `cornix_web::app` と `cornix_web::keytest` で、`element()` と、全画面・Keyboard Lock の配線が重なっている。全画面の出入りの順番の直し（58203d3・9e3550b）は、`app` にだけ入っている（`/code-review` の指摘・2026-10-12）
+- 公開の workflow に concurrency の組が無く、続けて main に入ると、公開が2つ同時に走りうる（`/code-review` の指摘・2026-10-18）
+- 公開の workflow は、Rust の版を固定していない（runner に入っている stable で作る。README の「作者が確かめた版」は rustc 1.98.0）（`/code-review` の指摘・2026-10-18）
+- 公開の workflow の `cargo test` と wasm-pack のビルドに `--locked` が無く、Cargo.lock が Cargo.toml とずれたときに、黙って解き直す（`/code-review` の指摘・2026-10-18）
+- 公開の workflow は、取ってきた wasm-pack の SHA-256 を確かめていない（版は固定しているが、中身は確かめていない）（`/code-review` の指摘・2026-10-18）
+- 公開の workflow にキャッシュが無く、実行のたびに、依存を全部作り直す（`/code-review` の指摘・2026-10-18）
