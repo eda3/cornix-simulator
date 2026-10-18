@@ -123,6 +123,8 @@
 - [ ] レビュー: /code-review を low → medium → high で掛け、本物だけ直す（1件1コミット）。Claude Code が自分で掛ける。掛けられなければ止まって、えだに頼む
 - [x] 直し: README の対象のブラウザの文を、B-45 に合わせる
   - メモ: `/code-review` の指摘。「ほかのブラウザは対象の外」のすぐあとに Brave を「確かめた」と並べていて、Brave が対象に読める。ほかのブラウザは確かめる対象にしていないこと（B-45）と、対象の外の Brave で動いたこと（measurements ⑤）を、分けて書く
+- [x] 直し: README の「全部消す」の説明を、B-40 に合わせる
+  - メモ: `/code-review` の指摘。欄だけでなく、「直前のキー」も空になる
 - [ ] 【えだ】Pages の設定をして、公開する
   - メモ: GitHub の Settings → Pages → Build and deployment の Source を「GitHub Actions」にする。PR の差分を読んで、合流を頼む。Actions の実行が成功するのを見る。失敗したら、ログの先頭20行を `docs/measurements.md` の⑥に貼って、Claude Code に直させる
 - [ ] 【えだ】公開ページで、⑲を確かめる
